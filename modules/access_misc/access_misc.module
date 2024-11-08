@@ -185,6 +185,22 @@ function access_misc_preprocess_views_view_field(&$variables) {
       }
     }
   }
+
+  // Display event instance date in the right format.
+  if ($view->id() == 'events_facet') {
+    if ($field->field == 'date') {
+      // Default separator between start and end dates is ' - '.
+      $output = strip_tags($variables['output']);
+      $output = explode('::', $output);
+      if (count($output) == 2) {
+        $start_date = $output[0];
+        $end_date = $output[1];
+        $date = new EventDateConvert($start_date, $end_date);
+        $variables['output'] = Markup::create($date->getStart() . " - " . $date->getEnd());
+      }
+    }
+  }
+
 }
 
 /**
