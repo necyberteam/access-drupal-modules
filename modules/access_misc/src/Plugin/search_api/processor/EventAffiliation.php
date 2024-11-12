@@ -8,12 +8,12 @@ use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
 
 /**
- * Search API Processor for indexing Event tags as the built in one isn't working..
+ * Search API Processor for indexing Event affiliation as the built in one isn't working..
  *
  * @SearchApiProcessor(
- *   id = "event_tags",
- *   label = @Translation("Event Tags"),
- *   description = @Translation("Adds the tags of the event to the indexed data."),
+ *   id = "custom_event_affiliation",
+ *   label = @Translation("Custom Event Affiliation"),
+ *   description = @Translation("Add event affiliation to the index."),
  *   stages = {
  *     "add_properties" = 0,
  *   },
@@ -21,7 +21,7 @@ use Drupal\search_api\Processor\ProcessorProperty;
  *   hidden = true,
  * )
  */
-class EventTags extends ProcessorPluginBase {
+class EventAffiliation extends ProcessorPluginBase {
 
   /**
    * {@inheritdoc}
@@ -31,12 +31,12 @@ class EventTags extends ProcessorPluginBase {
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('Custom Event Tags'),
-        'description' => $this->t('The tags of the event.'),
+        'label' => $this->t('Custom Event Affiliation'),
+        'description' => $this->t('Custom Affiliation Tags for the event.'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
       ];
-      $properties['search_api_custom_event_tags'] = new ProcessorProperty($definition);
+      $properties['search_api_custom_event_affiliation'] = new ProcessorProperty($definition);
 
     }
     return $properties;
@@ -50,22 +50,17 @@ class EventTags extends ProcessorPluginBase {
 
     $fields = $item->getFields();
     $fields = $this->getFieldsHelper()
-      ->filterForPropertyPath($fields, NULL, 'search_api_custom_event_tags');
+      ->filterForPropertyPath($fields, NULL, 'search_api_custom_event_affiliation');
     foreach ($fields as $field) {
       $series = $entity->getEventSeries();
       if (empty($series)) {
         return;
       }
 
-      $tags = $series->get('field_tags')->getValue();
+      $affiliation = $series->get('field_affiliation')->getValue();
 
-      foreach ($tags as $tag) {
-        // Get the tag name from tid.
-        $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag['target_id']);
-        if ($term) {
-          $term_name = $term->getName();
-          $field->addValue($term_name);
-        }
+      foreach ($affiliation as $aff) {
+        $field->addValue($aff['value']);
       }
 
     }

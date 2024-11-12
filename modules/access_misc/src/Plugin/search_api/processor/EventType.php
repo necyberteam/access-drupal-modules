@@ -8,12 +8,12 @@ use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
 
 /**
- * Search API Processor for indexing Event tags as the built in one isn't working..
+ * Search API Processor for indexing Event type as the built in one isn't working..
  *
  * @SearchApiProcessor(
- *   id = "event_tags",
- *   label = @Translation("Event Tags"),
- *   description = @Translation("Adds the tags of the event to the indexed data."),
+ *   id = "custom_event_type",
+ *   label = @Translation("Custom Event Type"),
+ *   description = @Translation("Add event type to the index."),
  *   stages = {
  *     "add_properties" = 0,
  *   },
@@ -21,7 +21,7 @@ use Drupal\search_api\Processor\ProcessorProperty;
  *   hidden = true,
  * )
  */
-class EventTags extends ProcessorPluginBase {
+class EventType extends ProcessorPluginBase {
 
   /**
    * {@inheritdoc}
@@ -31,12 +31,12 @@ class EventTags extends ProcessorPluginBase {
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('Custom Event Tags'),
-        'description' => $this->t('The tags of the event.'),
+        'label' => $this->t('Custom Event Type'),
+        'description' => $this->t('The type of the event.'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
       ];
-      $properties['search_api_custom_event_tags'] = new ProcessorProperty($definition);
+      $properties['search_api_custom_event_type'] = new ProcessorProperty($definition);
 
     }
     return $properties;
@@ -50,23 +50,19 @@ class EventTags extends ProcessorPluginBase {
 
     $fields = $item->getFields();
     $fields = $this->getFieldsHelper()
-      ->filterForPropertyPath($fields, NULL, 'search_api_custom_event_tags');
+      ->filterForPropertyPath($fields, NULL, 'search_api_custom_event_type');
     foreach ($fields as $field) {
       $series = $entity->getEventSeries();
       if (empty($series)) {
         return;
       }
 
-      $tags = $series->get('field_tags')->getValue();
+      $type = $series->get('field_event_type')->getValue();
 
-      foreach ($tags as $tag) {
-        // Get the tag name from tid.
-        $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag['target_id']);
-        if ($term) {
-          $term_name = $term->getName();
-          $field->addValue($term_name);
-        }
+      foreach ($type as $value) {
+        $field->addValue($value['value']);
       }
+
 
     }
   }
