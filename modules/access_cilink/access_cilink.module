@@ -74,10 +74,18 @@ function access_cilink_preprocess_views_view_field(&$variables) {
     if (!$webform_submission) {
       return;
     }
+    // Get submission user id.
+    $uid = $webform_submission->getOwnerId();
     $data = $webform_submission->getData();
     $title = $data['title'];
     $description = $data['description'];
     $type = $data['category'];
+
+    // If current user id is the same as the submission user id, show the edit link.
+    $edit_link = '';
+    if (\Drupal::currentUser()->id() == $uid) {
+      $edit_link = "<a href='/admin/structure/webform/manage/resource/submission/$sid/edit' class='text-dark-teal no-underline hover--underline'>Edit Submission</a>";
+    }
 
     // Get terms from webform submission.
     $webform_terms = $data['terms'];
@@ -227,6 +235,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
                                       <li>{{ flagInaccurate }}</li>
                                     </ul>
                                   </details>
+                                  {{ editLink|raw }}
                                 </div>
                               {% endif %}
                             </div>
@@ -251,6 +260,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
         'flagNotUseful' => $flag_not_useful,
         'flagInaccurate' => $flag_inaccurate,
         'domainName' => $domainName,
+        'editLink' => $edit_link,
       ],
     ];
 
