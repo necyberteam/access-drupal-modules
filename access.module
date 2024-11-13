@@ -36,24 +36,24 @@ function access_page_attachments(array &$attachments) {
       }
       $mask = \Drupal::service('masquerade');
       if ($title == 'Quick Links') {
-
-        $user = \Drupal::currentUser();
-        $roles = $user->getRoles();
-
-        if (in_array('match_pm', $roles) || in_array('match_sc', $roles) || in_array('administrator', $roles)) {
-          $menu[$weight]['items'][300]['name'] = 'Match interested users';
-          $menu[$weight]['items'][300]['url'] = '/match-interested-users';
-
-          $menu[$weight]['items'][301]['name'] = 'Match Engagements submissions';
-          $menu[$weight]['items'][301]['url'] = '/match-engagements-submissions';
-        }
-
         if ($mask->isMasquerading()) {
           $sub_weight = 400;
           $menu[$weight]['items'][$sub_weight]['name'] = 'Unmask';
           $menu[$weight]['items'][$sub_weight]['url'] = '/unmask';
         }
+      }
 
+      if ($title == 'MATCH Services') {
+        $user = \Drupal::currentUser();
+        $roles = $user->getRoles();
+
+        if (in_array('match_pm', $roles) || in_array('match_sc', $roles) || in_array('administrator', $roles)) {
+          $menu[$weight]['items'][300]['name'] = 'MATCH Interested Users';
+          $menu[$weight]['items'][300]['url'] = '/match-interested-users';
+
+          $menu[$weight]['items'][301]['name'] = 'MATCH Engagement Submissions';
+          $menu[$weight]['items'][301]['url'] = '/match-engagements-submissions';
+        }
       }
     }
     ksort($menu);
@@ -66,11 +66,11 @@ function access_page_attachments(array &$attachments) {
       foreach ($menu_items['items'] as $item) {
         $js_menu .= '{"name": "' . $item['name'] . '", "href": "' . $item['url'] . '"},';
       }
-      // remove last comma
+      // Remove last comma.
       $js_menu = rtrim($js_menu, ',');
       $js_menu .= ']},';
     }
-    // remove last comma
+    // Remove last comma.
     $js_menu = rtrim($js_menu, ',');
     $js_menu .= ']';
 
