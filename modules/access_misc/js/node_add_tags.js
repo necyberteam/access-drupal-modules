@@ -110,7 +110,7 @@ if (checkBoxEmail) {
       for (let i = 0; i < buttons.length; i++) {
         buttons[i].value = 'X';
       }
-      let time = document.querySelectorAll('input[type="time"]');
+      let time = document.querySelectorAll('.path-events input[type="time"]');
       for (let i = 0; i < time.length; i++) {
         time[i].step = '60';
       }
