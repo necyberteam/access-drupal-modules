@@ -385,12 +385,6 @@ class CommunityPersonaController extends ControllerBase {
     $build_match_engage_link['#attributes']['class'] = ['btn', 'btn-outline-dark', 'btn-md-teal', 'btn-sm', 'py-1', 'px-2', 'm-0'];
     // Mentorships.
     $mentorships = $this->mentorList($current_user);
-    // Link to see all mentorships.
-    $mentorship_engage_url = Url::fromUri('internal:/mentorships/status');
-    $mentorship_engage_link = Link::fromTextAndUrl('See Mentorships', $mentorship_engage_url);
-    $mentorship_engage_renderable = $mentorship_engage_link->toRenderable();
-    $build_mentorship_engage_link = $mentorship_engage_renderable;
-    $build_mentorship_engage_link['#attributes']['class'] = ['btn', 'btn-outline-dark', 'btn-md-teal', 'btn-sm', 'py-1', 'px-2', 'm-0'];
     // My Projects.
     $projects = $this->projectList($current_user);
 
@@ -474,7 +468,6 @@ class CommunityPersonaController extends ControllerBase {
             </div>
             <div class="p-3">
               {{ mentorships|raw }}
-              {{ mentorships_link }}
             </div>
           </div>
         {% endif %}
@@ -508,7 +501,6 @@ class CommunityPersonaController extends ControllerBase {
         'match_links' => $match_link,
         'mentorships_title' => t('My Mentorships'),
         'mentorships' => $mentorships,
-        'mentorships_link' => $build_mentorship_engage_link,
         'request_match_link' => $build_match_engage_link,
         'project_title' => t('My Projects'),
         'projects' => $projects,

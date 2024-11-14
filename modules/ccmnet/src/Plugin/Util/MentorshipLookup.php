@@ -174,6 +174,9 @@ class MentorshipLookup {
       foreach ($mentorship_status_list as $mentorship_status) {
         $mentorship_status_tid_lookup = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $mentorship_status]);
         $mentorship_tid = array_keys($mentorship_status_tid_lookup);
+        if (empty($mentorship_tid)) {
+          continue;
+        }
         $mentorship_tid = $mentorship_tid[0];
         $mentorship_translated_status[$mentorship_tid] = $mentorship_status;
       }
