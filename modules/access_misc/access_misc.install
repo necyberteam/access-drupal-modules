@@ -1634,3 +1634,41 @@ function access_misc_update_10021() {
       ->execute();
 }
 
+/**
+ * Remove people pages, update/add links.
+ */
+function access_misc_update_10022() {
+  // Delete nodes 66 and 67.
+  $nids = [66, 67];
+  foreach ($nids as $nid) {
+    $node = Node::load($nid);
+    if ($node) {
+      $node->delete();
+    }
+  }
+  // Redirect people/list to /people.
+  Redirect::create([
+    'redirect_source' => 'people/list',
+    'redirect_redirect' => 'internal:/people',
+    'status_code' => 301,
+  ])->save();
+  Redirect::create([
+    'redirect_source' => 'people/card',
+    'redirect_redirect' => 'internal:/people',
+    'status_code' => 301,
+  ])->save();
+  MenuLinkContent::create([
+    'title' => 'People',
+    'link' => ['uri' => 'internal:/people'],
+    'menu_name' => 'main',
+    'parent' => 'menu_link_content:e5bcc37b-3e8c-4c85-a184-3715cd37c5ba',
+    'weight' => -49,
+  ])->save();
+  MenuLinkContent::create([
+    'title' => 'People',
+    'link' => ['uri' => 'internal:/people'],
+    'menu_name' => 'cc-main-menu',
+    'parent' => 'menu_link_content:8e7960bf-7b98-45cd-945b-badcbf0b06d6',
+    'weight' => -49,
+  ])->save();
+}

@@ -2,6 +2,14 @@ misc_library:
   version: 1.x
   js:
     js/create_ticket_links.js: {}
+people_directory:
+  version: 1.x
+  js:
+    js/people-directory.js: {}
+people_menu:
+  version: 1.x
+  js:
+    js/people_menu.js: {}
 copyclip:
   version: 1.x
   js:
