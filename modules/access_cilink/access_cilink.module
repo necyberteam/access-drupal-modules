@@ -84,7 +84,6 @@ function access_cilink_preprocess_views_view_field(&$variables) {
     // If current user id is the same as the submission user id, show the edit link.
     $edit_link = '';
     $roles = \Drupal::currentUser()->getRoles();
-    // If administrator or kb_pm role.
     if (\Drupal::currentUser()->id() == $uid || in_array('administrator', $roles) || in_array('kb_pm', $roles)) {
       $edit_link = "<a href='/admin/structure/webform/manage/resource/submission/$sid/edit' class='w-full btn-sm btn-small btn-secondary-outline py-0 px-4 btn btn-md-teal'>Edit</a>";
     }
