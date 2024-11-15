@@ -182,7 +182,7 @@ class MentorshipLookup {
       }
 
       if ($match_status) {
-        $set_status = isset($match_status[0]) ? $match_status[0]['target_id'] : $match_status;
+        $set_status = is_array($match_status) ? $match_status[0]['target_id'] : $match_status;
         $match_status = $mentorship_translated_status[$set_status];
       }
       $match_name = $match['name'];
