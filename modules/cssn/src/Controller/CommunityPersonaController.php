@@ -125,7 +125,7 @@ class CommunityPersonaController extends ControllerBase {
   public function knowledgeBaseContrib($user, $public = FALSE) {
     $ws_query = \Drupal::entityQuery('webform_submission')
       ->condition('uid', $user->id())
-      ->condition('uri', '/form/ci-link')
+      ->condition('uri', '/form/resource')
       ->accessCheck(FALSE);
     $ws_results = $ws_query->execute();
     $ws_link = "<ul>";
