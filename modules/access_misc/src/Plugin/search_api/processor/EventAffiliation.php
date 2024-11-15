@@ -57,10 +57,18 @@ class EventAffiliation extends ProcessorPluginBase {
         return;
       }
 
-      $affiliation = $series->get('field_affiliation')->getValue();
+      $affiliation = $series->get('field_affiliation')->view();
 
       foreach ($affiliation as $aff) {
-        $field->addValue($aff['value']);
+        // Skip if not array.
+        if (!is_array($aff)) {
+          continue;
+        }
+        // Skip if no markup.
+        if (!array_key_exists('#markup', $aff)) {
+          continue;
+        }
+        $field->addValue($aff['#markup']);
       }
 
     }

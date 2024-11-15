@@ -57,7 +57,7 @@ class EventSkillLevel extends ProcessorPluginBase {
         return;
       }
 
-      $sl = $series->get('field_event_type')->getValue();
+      $sl = $series->get('field_skill_level')->getValue();
 
       foreach ($sl as $value) {
         $field->addValue($value['value']);
