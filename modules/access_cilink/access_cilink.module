@@ -84,7 +84,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
     // If current user id is the same as the submission user id, show the edit link.
     $edit_link = '';
     if (\Drupal::currentUser()->id() == $uid) {
-      $edit_link = "<a href='/admin/structure/webform/manage/resource/submission/$sid/edit' class='text-dark-teal no-underline hover--underline'>Edit Submission</a>";
+      $edit_link = "<a href='/admin/structure/webform/manage/resource/submission/$sid/edit' class='w-full btn-sm btn-small btn-secondary-outline py-0 px-4 btn btn-md-teal'>Edit</a>";
     }
 
     // Get terms from webform submission.
@@ -225,6 +225,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
                               </div>
                               {% if authenticated %}
                                 <div class="pt-4 md--w-full">
+                                  {{ editLink|raw }}
                                   <details class="border border-solid border-dark-teal open:bg-white duration-300 relative">
                                     <summary class="ps-2 pe-10 py-2 text-dark-teal leading-5 uppercase">
                                       {{ report }}
@@ -235,7 +236,6 @@ function access_cilink_preprocess_views_view_field(&$variables) {
                                       <li>{{ flagInaccurate }}</li>
                                     </ul>
                                   </details>
-                                  {{ editLink|raw }}
                                 </div>
                               {% endif %}
                             </div>
