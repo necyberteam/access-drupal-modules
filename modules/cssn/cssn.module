@@ -47,12 +47,13 @@ function cssn_preprocess_views_view_field(&$variables) {
         if (!empty($lines[0])) {
           foreach ($lines as $key => $line) {
             $term_id = $line;
-            if (\Drupal\taxonomy\Entity\Term::load($term_id)->get('field_badge')->entity != NULL) {
-              $name = \Drupal\taxonomy\Entity\Term::load($term_id)->get('name')->value;
-              $description = \Drupal\taxonomy\Entity\Term::load($term_id)->get('description')->value;
+            $term = \Drupal\taxonomy\Entity\Term::load($term_id);
+            if ($term->get('field_badge')->entity != NULL) {
+              $name = $term->get('name')->value;
+              $description = $term->get('description')->value;
               $description = $description ? strip_tags($description) : '';
-              $image_alt = \Drupal\taxonomy\Entity\Term::load($term_id)->get('field_badge')->alt;
-              $image_url = \Drupal\taxonomy\Entity\Term::load($term_id)->get('field_badge')->entity->getFileUri();
+              $image_alt = $term->get('field_badge')->alt;
+              $image_url = $term->get('field_badge')->entity->getFileUri();
               $image = \Drupal::service('file_url_generator')->generateAbsoluteString($image_url);
               if ($image) {
                 if ($name) {
