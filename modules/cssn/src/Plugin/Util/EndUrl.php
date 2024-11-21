@@ -35,7 +35,7 @@ class EndUrl {
     $url_clean = $current_url->toString() ? Xss::filter($current_url->toString()) : '';
     $url_parts = explode('/', $url_clean);
     $this->urlParts = $url_parts;
-    $this->urlEnd = end($url_parts);
+    $this->urlEnd = trim(end($url_parts));
   }
 
   /**
