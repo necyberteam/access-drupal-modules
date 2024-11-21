@@ -9,12 +9,12 @@ use Drupal\search_api\Processor\ProcessorProperty;
 use Drupal\taxonomy\Entity\Term;
 
 /**
- * Index selected user skills.
+ * Index selected user skills id.
  *
  * @SearchApiProcessor(
- *   id = "user_skills",
- *   label = @Translation("User Skills"),
- *   description = @Translation("Index selected user skills."),
+ *   id = "user_skills_id",
+ *   label = @Translation("User Skills Id"),
+ *   description = @Translation("Index selected user skills id."),
  *   stages = {
  *     "add_properties" = 0,
  *   },
@@ -22,7 +22,7 @@ use Drupal\taxonomy\Entity\Term;
  *   hidden = true,
  * )
  */
-class UserSkills extends ProcessorPluginBase {
+class UserSkillsId extends ProcessorPluginBase {
 
   /**
    * {@inheritdoc}
@@ -32,12 +32,12 @@ class UserSkills extends ProcessorPluginBase {
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('User Skills'),
+        'label' => $this->t('User Skills Id'),
         'description' => $this->t('The user skills.'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
       ];
-      $properties['search_api_user_skills'] = new ProcessorProperty($definition);
+      $properties['search_api_user_skills_id'] = new ProcessorProperty($definition);
 
     }
     return $properties;
@@ -56,12 +56,16 @@ class UserSkills extends ProcessorPluginBase {
 
     if ($flagged_skills != NULL) {
       $fields = $this->getFieldsHelper()
-        ->filterForPropertyPath($item->getFields(), NULL, 'search_api_user_skills');
+        ->filterForPropertyPath($item->getFields(), NULL, 'search_api_user_skills_id');
       foreach ($fields as $field) {
         foreach ($flagged_skills as $flagged_skill) {
-          $term_title = Term::load($flagged_skill)->get('name')->value;
+          $term = Term::load($flagged_skill);
+          $term_title = $term->get('name')->value;
           $term_title = str_replace(' ', '', $term_title);
-          $field->addValue($term_title);
+          $term_id = $term->id();
+
+          $value = "$term_title,$term_id";
+          $field->addValue($value);
         }
       }
     }
