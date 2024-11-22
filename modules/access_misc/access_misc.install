@@ -1636,6 +1636,7 @@ function access_misc_update_10021() {
 
 /**
  * Remove people pages, update/add links.
+ * Update connected_domain field on region taxonomy.
  */
 function access_misc_update_10022() {
   // Delete nodes 66 and 67.
@@ -1671,4 +1672,23 @@ function access_misc_update_10022() {
     'parent' => 'menu_link_content:8e7960bf-7b98-45cd-945b-badcbf0b06d6',
     'weight' => -49,
   ])->save();
+
+  $program_id = [
+    'northeast-cyberteam' => 308,
+    'kentucky-cyberteam' => 322,
+    'careers-cyberteam' => 323,
+    'campus-champions' => 572,
+    'great-plains-cyberteam' => 311,
+    'rmacc-cyberteam' => 314,
+    'trecis-cyberteam' => 326,
+    'sweeter-cyberteam' => 324,
+    'mines-cyberteam' => 325,
+  ];
+
+  foreach ($program_id as $domain => $tid) {
+    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+    $term->set('field_region_connected_domain', $domain);
+    $term->save();
+  }
 }
+
