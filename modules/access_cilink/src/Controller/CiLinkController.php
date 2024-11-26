@@ -101,23 +101,25 @@ class CiLinkController extends ControllerBase {
     // Skill Level.
     $skill_level = $data['skill_level'];
     $skill_graph = '';
-    if (in_array(304, $skill_level) && in_array(305, $skill_level) && !in_array(306, $skill_level)) {
-      $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner-medium.png" alt="Beginner and Intermediate"/>';
-    }
-    elseif (!in_array(304, $skill_level) && in_array(305, $skill_level) && in_array(306, $skill_level)) {
-      $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium-advanced.png" alt="Intermediate and Advanced"/>';
-    }
-    elseif (in_array(304, $skill_level) && in_array(305, $skill_level) && in_array(306, $skill_level)) {
-      $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-all.png" alt="Beginner, Intermediate, and Advanced"/>';
-    }
-    elseif (in_array(304, $skill_level)) {
-      $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner.png" alt="Beginner"/>';
-    }
-    elseif (in_array(305, $skill_level)) {
-      $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium.png" alt="Intermediate"/>';
-    }
-    elseif (in_array(306, $skill_level)) {
-      $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-advanced.png" alt="Advanced"/>';
+    if (is_array($skill_level)) {
+      if (in_array(304, $skill_level) && in_array(305, $skill_level) && !in_array(306, $skill_level)) {
+        $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner-medium.png" alt="Beginner and Intermediate"/>';
+      }
+      elseif (!in_array(304, $skill_level) && in_array(305, $skill_level) && in_array(306, $skill_level)) {
+        $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium-advanced.png" alt="Intermediate and Advanced"/>';
+      }
+      elseif (in_array(304, $skill_level) && in_array(305, $skill_level) && in_array(306, $skill_level)) {
+        $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-all.png" alt="Beginner, Intermediate, and Advanced"/>';
+      }
+      elseif (in_array(304, $skill_level)) {
+        $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner.png" alt="Beginner"/>';
+      }
+      elseif (in_array(305, $skill_level)) {
+        $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium.png" alt="Intermediate"/>';
+      }
+      elseif (in_array(306, $skill_level)) {
+        $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-advanced.png" alt="Advanced"/>';
+      }
     }
 
     // Affinity groups.
