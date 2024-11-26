@@ -5,8 +5,8 @@ namespace Drupal\access_misc\EventSubscriber;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -40,8 +40,7 @@ class Subscriber implements EventSubscriberInterface {
     if ($route_name == 'user.login' && !$user_is_authenticated) {
       $this->doRedirectToCilogon($event);
     }
-    // Get current url.
-    $current_url = \Drupal::request()->getRequestUri();
+
     // Get destination query.
     $query = \Drupal::request()->query->get('redirect') ? Xss::filter(\Drupal::request()->query->get('redirect')) : '';
     // Get url query 'check_logged_in'.
@@ -58,9 +57,9 @@ class Subscriber implements EventSubscriberInterface {
       $request = \Drupal::request();
       $session = $request->getSession();
       $query_set = $session->get('cilogon_destination');
-      $session->remove('cilogon_destination');
-      \Drupal::logger('access_misc')->notice("Redirecting to $query_set");
       if ($query_set) {
+        $session->remove('cilogon_destination');
+        \Drupal::logger('access_misc')->notice("Redirecting to $query_set");
         $event->setResponse(new RedirectResponse($query_set));
       }
     }
