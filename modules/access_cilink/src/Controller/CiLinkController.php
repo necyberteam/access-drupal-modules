@@ -39,14 +39,6 @@ class CiLinkController extends ControllerBase {
     if (is_numeric(end($url_chunked))) {
       $this->sid = end($url_chunked);
     }
-    // Redirect any /ci-links to /knowledge-base/ci-links on ACCESS Support.
-    $token = \Drupal::token();
-    $domainName = Html::getClass($token->replace(t('[domain:name]')));
-    if ($domainName == 'access-support' && $url_chunked[1] == 'ci-links') {
-      $response = new RedirectResponse('/knowledge-base/ci-links/' . $this->sid);
-      $response->send();
-      return;
-    }
 
     if ($this->sid) {
       $this->webform_submission = \Drupal::entityTypeManager()->getStorage('webform_submission')->load($this->sid);
@@ -60,7 +52,7 @@ class CiLinkController extends ControllerBase {
       $this->title = $title['title'];
     }
     else {
-      $this->title = 'CI Link';
+      $this->title = 'KB Resource';
     }
   }
 
@@ -70,7 +62,7 @@ class CiLinkController extends ControllerBase {
   public function cilinks() {
     if (!$this->webform_submission) {
       return [
-        '#markup' => $this->t('No CI Link found.'),
+        '#markup' => $this->t('No KB Resource found.'),
       ];
     }
     $data = $this->webform_submission->getData();

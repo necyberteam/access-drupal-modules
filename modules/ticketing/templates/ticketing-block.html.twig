@@ -25,12 +25,19 @@
       </label>
     </div>
     <div class="py-4">
-      <button type="submit" class="btn btn-primary">OPEN A TICKET</button>
+      <a href="login?redirect=/open-a-ticket" id="ticket-link" class="btn btn-primary">Open a Ticket</a>
+      <button type="submit" id="ticket-submit" class="btn btn-primary">Open a Ticket</button>
       <a href="https://access-ci.atlassian.net/servicedesk/customer/user/requests" class="btn btn-secondary">View your tickets</a>
     </div>
   </form>
 </div>
 <SCRIPT>
+if (document.getElementById("ticket-account-name").value == "") {
+  document.getElementById("ticket-submit").style.display = "none";
+} else {
+  document.getElementById("ticket-link").style.display = "none";
+}
+
 /*
  * Script for ticketing-block.html.twig, used on ticketing choices page.
  * Set up the url corresponding to user's choice of type.
@@ -44,7 +51,7 @@ for (match in matches) {
 // this is used as parameter for the ticketing form; if anonymous we
 // want to send blank so they will fill in their name
 if (document.getElementById("ticket-display-name").value == "anonymous") {
-   document.getElementById("ticket-display-name").value = "";
+  document.getElementById("ticket-display-name").value = "";
 }
 
 function ticketChoiceChange(e) {

@@ -7,6 +7,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\cssn\Plugin\Util\EndUrl;
 use Drupal\cssn\Plugin\Util\MatchLookup;
+use Drupal\ccmnet\Plugin\Util\MentorshipLookup;
 use Drupal\cssn\Plugin\Util\ProjectLookup;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\user\Entity\User;
@@ -124,7 +125,7 @@ class CommunityPersonaController extends ControllerBase {
   public function knowledgeBaseContrib($user, $public = FALSE) {
     $ws_query = \Drupal::entityQuery('webform_submission')
       ->condition('uid', $user->id())
-      ->condition('uri', '/form/ci-link')
+      ->condition('uri', '/form/resource')
       ->accessCheck(FALSE);
     $ws_results = $ws_query->execute();
     $ws_link = "<ul>";
@@ -170,10 +171,69 @@ class CommunityPersonaController extends ControllerBase {
     $match_list = $matches->getMatchList();
     $match_link = "<ul class='list-unstyled mx-0 my-3 p-0'>";
     if ($match_list == NULL && $public === FALSE) {
-      $match_link = '<p class="mb-3">' . t('You currently have not been matched with any Engagements. Click below to find an Engagement.') . "</p>";
+      $match_link = '';
     }
     if ($match_list == NULL && $public === TRUE) {
-      $match_link = '<p>' . t('No matched Engagements.') . "</p>";
+      $match_link = '';
+    }
+    if ($match_link == "<ul class='list-unstyled mx-0 my-3 p-0'>") {
+      $match_link .= $match_list . '</ul>';
+    }
+    return $match_link;
+  }
+
+  /**
+   * Return list of mentorships.
+   *
+   * @return string
+   *   List of mentorships.
+   */
+  public function mentorList($user, $public = FALSE) {
+    $fields = [
+      'field_match_interested_users' => 'Interested',
+      'field_mentor' => 'Mentor',
+      'field_mentee' => 'Mentee',
+      'field_me_ccmnet_leadership' => 'CCMNet Leadership Team Liaison',
+    ];
+    $mentorships = new MentorshipLookup($fields, $user->id(), $public);
+    $mentorship_list = $mentorships->getMentorshipList();
+    $mentorship_link = "<ul class='list-unstyled mx-0 my-3 p-0'>";
+    if ($mentorship_list == NULL && $public === FALSE) {
+      $mentorship_link = '';
+    }
+    if ($mentorship_list == NULL && $public === TRUE) {
+      $mentorship_link = '';
+    }
+    if ($mentorship_link == "<ul class='list-unstyled mx-0 my-3 p-0'>") {
+      $mentorship_link .= $mentorship_list . '</ul>';
+    }
+    return $mentorship_link;
+  }
+
+  /**
+   * Return list of engagements.
+   *
+   * @return string
+   *   List of engagements.
+   */
+  public function mmatchList($user, $public = FALSE) {
+    $fields = [
+      'field_match_interested_users' => 'Interested',
+      'field_mentor' => 'Mentor',
+      'field_students' => 'Student',
+      'field_consultant' => 'Consultant',
+      'field_researcher' => 'Researcher',
+    ];
+    $matches = new MatchLookup($fields, $user->id(), $public);
+    // Sort by status.
+    $matches->sortStatusMatches();
+    $match_list = $matches->getMatchList();
+    $match_link = "<ul class='list-unstyled mx-0 my-3 p-0'>";
+    if ($match_list == NULL && $public === FALSE) {
+      $match_link = '';
+    }
+    if ($match_list == NULL && $public === TRUE) {
+      $match_link = '';
     }
     if ($match_link == "<ul class='list-unstyled mx-0 my-3 p-0'>") {
       $match_link .= $match_list . '</ul>';
@@ -323,6 +383,8 @@ class CommunityPersonaController extends ControllerBase {
     $match_engage_renderable = $match_engage_link->toRenderable();
     $build_match_engage_link = $match_engage_renderable;
     $build_match_engage_link['#attributes']['class'] = ['btn', 'btn-outline-dark', 'btn-md-teal', 'btn-sm', 'py-1', 'px-2', 'm-0'];
+    // Mentorships.
+    $mentorships = $this->mentorList($current_user);
     // My Projects.
     $projects = $this->projectList($current_user);
 
@@ -386,15 +448,29 @@ class CommunityPersonaController extends ControllerBase {
             {{ request_webform_link }}
           </div>
         </div>
-        <div class="border border-secondary border-md-teal my-3 mb-6">
-          <div class="text-white py-2 px-3 bg-dark bg-md-teal text-2xl p-4 d-flex flex align-items-center justify-content-between">
-            <span class="h4 m-0 text-white">{{ match_title }}</span>
+
+        {% if match_links != "" %}
+          <div class="border border-secondary border-md-teal my-3 mb-6">
+            <div class="text-white py-2 px-3 bg-dark bg-md-teal text-2xl p-4 d-flex flex align-items-center justify-content-between">
+              <span class="h4 m-0 text-white">{{ match_title }}</span>
+            </div>
+            <div class="p-3">
+              {{ match_links|raw }}
+              {{ request_match_link }}
+            </div>
           </div>
-          <div class="p-3">
-            {{ match_links|raw }}
-            {{ request_match_link }}
+        {% endif %}
+
+        {% if mentorships != "" %}
+          <div class="border border-secondary border-md-teal my-3 mb-6">
+            <div class="text-white py-2 px-3 bg-dark bg-md-teal text-2xl p-4 d-flex flex align-items-center justify-content-between">
+              <span class="h4 m-0 text-white">{{ mentorships_title }}</span>
+            </div>
+            <div class="p-3">
+              {{ mentorships|raw }}
+            </div>
           </div>
-        </div>
+        {% endif %}
 
         {% if projects != "na" %}
           <div class="border border-secondary border-md-teal my-3 mb-6">
@@ -423,6 +499,8 @@ class CommunityPersonaController extends ControllerBase {
         'edit_skill_link' => $edit_skill_renderable,
         'match_title' => t('My MATCH Engagements'),
         'match_links' => $match_link,
+        'mentorships_title' => t('My Mentorships'),
+        'mentorships' => $mentorships,
         'request_match_link' => $build_match_engage_link,
         'project_title' => t('My Projects'),
         'projects' => $projects,
@@ -483,6 +561,8 @@ class CommunityPersonaController extends ControllerBase {
       $ws_link = $this->knowledgeBaseContrib($user, TRUE);
       // My Match Engagements.
       $match_link = $this->matchList($user, TRUE);
+      // Mentorships.
+      $mentorships = $this->mentorList($user, TRUE);
       // My Projects.
       $projects = $this->projectList($user, TRUE);
 
@@ -542,14 +622,28 @@ class CommunityPersonaController extends ControllerBase {
               {{ ws_links|raw }}
             </div>
           </div>
-          <div class="border border-secondary border-md-teal my-3 mb-6">
-            <div class="text-white py-2 px-3 bg-dark bg-md-teal text-2xl p-4 d-flex flex align-items-center justify-content-between">
-              <span class="h4 m-0 text-white">{{ match_title }}</span>
+
+          {% if match_links != "" %}
+            <div class="border border-secondary border-md-teal my-3 mb-6">
+              <div class="text-white py-2 px-3 bg-dark bg-md-teal text-2xl p-4 d-flex flex align-items-center justify-content-between">
+                <span class="h4 m-0 text-white">{{ match_title }}</span>
+              </div>
+              <div class="p-3">
+                {{ match_links|raw }}
+              </div>
             </div>
-            <div class="p-3">
-              {{ match_links|raw }}
+          {% endif %}
+
+          {% if mentorships != "" %}
+            <div class="border border-secondary border-md-teal my-3 mb-6">
+              <div class="text-white py-2 px-3 bg-dark bg-md-teal text-2xl p-4 d-flex flex align-items-center justify-content-between">
+                <span class="h4 m-0 text-white">{{ mentorship_title }}</span>
+              </div>
+              <div class="p-3">
+                {{ mentorships|raw }}
+              </div>
             </div>
-          </div>
+          {% endif %}
 
           {% if projects != "na" %}
             <div class="border border-secondary border-md-teal my-3 mb-6">
@@ -576,6 +670,8 @@ class CommunityPersonaController extends ControllerBase {
           'ws_links' => $ws_link,
           'match_title' => t('MATCH Engagements'),
           'match_links' => $match_link,
+          'mentorship_title' => t('Mentorships'),
+          'mentorships' => $mentorships,
           'project_title' => t('Projects'),
           'projects' => $projects,
         ],

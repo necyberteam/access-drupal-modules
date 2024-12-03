@@ -5,6 +5,7 @@
  */
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
@@ -31,7 +32,7 @@ function access_cilink_views_post_render(ViewExecutable $view) {
   if ($view->id() == 'resources' && isset($view->getDisplay()->view->element['#display_id']) && $view->getDisplay()->view->element['#display_id'] == 'page_2') {
     $tid = $view->getTitle();
     if (term::load($tid)) {
-      $title = 'Resources tagged ' . term::load($tid)->get('name')->value;
+      $title = 'KB Resources tagged ' . term::load($tid)->get('name')->value;
       // Set the view title.
       $view->setTitle($title);
       // Set the route title.
@@ -42,7 +43,7 @@ function access_cilink_views_post_render(ViewExecutable $view) {
   if ($view->id() == 'resource' && isset($view->getDisplay()->view->element['#display_id']) && $view->getDisplay()->view->element['#display_id'] == 'page_1') {
     $url = \Drupal::request()->getRequestUri();
     $url_chunked = explode('/', $url);
-    $title = 'Ci Link';
+    $title = 'KB Resource';
     if (is_numeric($url_chunked[2])) {
       $sid = $url_chunked[2];
       $webform_submission = \Drupal::entityTypeManager()->getStorage('webform_submission')->load($sid);
@@ -74,10 +75,19 @@ function access_cilink_preprocess_views_view_field(&$variables) {
     if (!$webform_submission) {
       return;
     }
+    // Get submission user id.
+    $uid = $webform_submission->getOwnerId();
     $data = $webform_submission->getData();
     $title = $data['title'];
     $description = $data['description'];
     $type = $data['category'];
+
+    // If current user id is the same as the submission user id, show the edit link.
+    $edit_link = '';
+    $roles = \Drupal::currentUser()->getRoles();
+    if (\Drupal::currentUser()->id() == $uid || in_array('administrator', $roles) || in_array('kb_pm', $roles)) {
+      $edit_link = "<a href='/admin/structure/webform/manage/resource/submission/$sid/edit' class='w-full btn-sm btn-small btn-secondary-outline py-0 px-4 btn btn-md-teal'>Edit</a>";
+    }
 
     // Get terms from webform submission.
     $webform_terms = $data['terms'];
@@ -217,6 +227,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
                               </div>
                               {% if authenticated %}
                                 <div class="pt-4 md--w-full">
+                                  {{ editLink|raw }}
                                   <details class="border border-solid border-dark-teal open:bg-white duration-300 relative">
                                     <summary class="ps-2 pe-10 py-2 text-dark-teal leading-5 uppercase">
                                       {{ report }}
@@ -245,19 +256,20 @@ function access_cilink_preprocess_views_view_field(&$variables) {
         'linkToResource' => $link_to_resource,
         'likesCount' => $flag_upvote_count,
         'likesOutput' => $likes_output_html,
-        'report' => $domainName == 'accesssupport' ? t('Flag as') :  t('Flag as <i class="fa-solid fa-chevron-down ml-3"></i>'),
+        'report' => $domainName == 'accesssupport' ? t('Flag as') : t('Flag as <i class="fa-solid fa-chevron-down ml-3"></i>'),
         'authenticated' => $authenticated,
         'flagOutdated' => $flag_outdated,
         'flagNotUseful' => $flag_not_useful,
         'flagInaccurate' => $flag_inaccurate,
         'domainName' => $domainName,
+        'editLink' => $edit_link,
       ],
     ];
 
     $variables['output'] = $output;
   }
   // Override view /admin/structure/views/view/resources/edit/page_1 sid_2.
-  // Shows up as affinity group on /ci-links page.
+  // Shows up as affinity group on KB Resources page.
   if ($view->id() == 'resources' && ($view->current_display == 'page_1' || $view->current_display == 'page_3') && $field->options['id'] == 'sid_2') {
     $sid = $variables['output'];
     $query = \Drupal::entityQuery('node')
@@ -443,7 +455,7 @@ function cilink_send($key, $params) {
 /**
  * Implements hook_form_alter().
  */
-function access_cilink_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function access_cilink_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id == 'webform_submission_resource_add_form' || $form_id == 'webform_submission_resource_edit_form') {
     $form['actions']['submit']['#submit'][] = 'access_cilink_webform_submission_resource_submit';
   }
@@ -452,7 +464,7 @@ function access_cilink_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $
 /**
  * Webform submission resource submit.
  */
-function access_cilink_webform_submission_resource_submit($form, \Drupal\Core\Form\FormStateInterface $form_state) {
+function access_cilink_webform_submission_resource_submit($form, FormStateInterface $form_state) {
   // Get current user.
   $user = \Drupal::currentUser();
   $kb_one = \Drupal::service('access_badges.badgeTools')->getBadgeTid('KB Resource Contributor (1)');

@@ -9,7 +9,7 @@ import {
   header,
   siteMenus,
   universalMenus,
-} from "https://esm.sh/@access-ci/ui@0.3.1";
+} from "https://esm.sh/@access-ci/ui@0.4.0";
 
 (function (Drupal, drupalSettings) {
 
