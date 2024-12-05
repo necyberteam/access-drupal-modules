@@ -14,7 +14,7 @@ function access_page_attachments(array &$attachments) {
   $token = \Drupal::token();
   $domain_name = Html::getClass($token->replace(t('[domain:name]')));
 
-  if ($domain_name = "access-support") {
+  if ($domain_name == "access-support") {
 
     // Get 'access-secondary-menu' menu items and links.
     $tree = \Drupal::menuTree()->load('access-secondary-menu', new MenuTreeParameters());
