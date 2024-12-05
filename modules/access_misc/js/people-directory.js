@@ -1,6 +1,6 @@
 (function ($, Drupal, once) {
   "use strict";
-  Drupal.behaviors.nodeAddTags = {
+  Drupal.behaviors.peopleDirectory = {
     attach: function (context, settings) {
 
       var item = document.querySelectorAll('.user-skills');
