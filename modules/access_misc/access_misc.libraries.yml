@@ -6,6 +6,7 @@ people_directory:
   version: 1.x
   js:
     js/people-directory.js: {}
+    js/search_api_views.ajax.js: {}
 people_menu:
   version: 1.x
   js:
