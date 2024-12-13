@@ -232,7 +232,9 @@ function access_misc_preprocess_views_view_field(&$variables) {
       $current_user = \Drupal::currentUser();
       $uid = $current_user->id();
 
-      $meeting_link = "<a href='$link' class='btn-sm btn-small btn-secondary-outline py-0 px-4 btn btn-md-teal ms-auto'> Join meeting</a>";
+      $link_url = $link[0]['uri'];
+
+      $meeting_link = "<a href='$link_url' class='btn-sm btn-small btn-secondary-outline py-0 px-4 btn btn-md-teal ms-auto'> Join meeting</a>";
 
       if ($registration_status) {
         // Entity Query 'registrant' to get all registrants for the event instance.
@@ -247,7 +249,6 @@ function access_misc_preprocess_views_view_field(&$variables) {
 
 
         if ($registrants) {
-          $link = $link[0]['uri'];
           $variables['output'] = Markup::create($meeting_link);
         }
       } else {
@@ -442,6 +443,9 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
       \Drupal::messenger()->addMessage(t('You are already registered for this event.'));
     }
 
+    // Add submit handler to registrant form to invalidate cache on Events
+    // Facet view.
+    $form['actions']['submit']['#submit'][] = 'access_misc_registrant_submit';
   }
   if ( ($form_id == 'registrant_default_add_form' || $form_id == 'registrant_default_edit_form') && in_array('administrator', $roles)) {
     $form['field_first_name']['widget'][0]['value']['#access'] = TRUE;
@@ -450,10 +454,22 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
     $form['user_id']['widget'][0]['#access'] = TRUE;
 
     if ($form_id == 'registrant_default_add_form') {
+      // Get current user.
+      $current_user = \Drupal::currentUser();
+      // Get current user field 'field_user_first_name'.
+      $user = User::load($current_user->id());
+      $first_name = $user->get('field_user_first_name')->value;
+      $last_name = $user->get('field_user_last_name')->value;
+      $email = $user->getEmail();
+
       $form['field_first_name']['widget'][0]['value']['#default_value'] = $first_name;
       $form['field_last_name']['widget'][0]['value']['#default_value'] = $last_name;
       $form['email']['widget'][0]['value']['#default_value'] = $email;
     }
+
+    // Add submit handler to registrant form to invalidate cache on Events
+    // Facet view.
+    $form['actions']['submit']['#submit'][] = 'access_misc_registrant_submit';
   }
 
   // Custom tags on /events/add
@@ -604,6 +620,15 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
   if ($form_id == 'user_form') {
     $form['actions']['submit']['#submit'][] = 'access_misc_user_password_change';
   }
+}
+
+/**
+ * Custom submit handler for registrant form.
+ */
+function access_misc_registrant_submit($form, FormStateInterface $form_state) {
+  // Invalidate cache on Events Facet view.
+  $cache_tags = ['config:views.view.events_facet'];
+  \Drupal\Core\Cache\Cache::invalidateTags($cache_tags);
 }
 
 /**

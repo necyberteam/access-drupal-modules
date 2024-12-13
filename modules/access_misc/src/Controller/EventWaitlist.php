@@ -2,6 +2,7 @@
 
 namespace Drupal\access_misc\Controller;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -146,6 +147,10 @@ class EventWaitlist extends ControllerBase {
       $registrant->set('status', $status);
       $registrant->save();
     }
+
+    // Invalidate cache on Events Facet view.
+    $cache_tags = ['config:views.view.events_facet'];
+    Cache::invalidateTags($cache_tags);
   }
 
 }
