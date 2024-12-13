@@ -59,10 +59,8 @@ class EventNoShow extends ProcessorPluginBase {
 
       $no_show = $series->get('field_event_no_listing')->getValue();
 
-      if ($no_show == NULL) {
-        $field->addValue(0);
-      } else {
-        $field->addValue(1);
+      if ($no_show != NULL) {
+        $field->addValue($no_show[0]['value']);
       }
 
     }

@@ -32,3 +32,21 @@ if (radioSelect) {
 let title = document.querySelector('#edit-title-0-value--description');
 title.textContent = title.textContent;
 title.innerHTML = 'The title of your event. Please do not include date or location information in the title since that is listed elsewhere in the event.';
+
+// If #edit-event-registration-0-registration is checked or unchecked add a console.log message.
+let registration = document.querySelector('#edit-event-registration-0-registration');
+registration.addEventListener('change', function() {
+  checkRegistration();
+});
+
+function checkRegistration() {
+  if (registration.checked) {
+    document.getElementById("edit-field-registration-0-uri").value = '/here';
+    document.getElementById("edit-field-registration-0-uri").disabled = true;
+  } else {
+    document.getElementById("edit-field-registration-0-uri").value = '';
+    document.getElementById("edit-field-registration-0-uri").disabled = false;
+  }
+}
+
+checkRegistration();

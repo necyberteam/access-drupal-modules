@@ -16,6 +16,7 @@ use Drupal\user\Entity\User;
 use Drupal\views\ViewExecutable;
 use Drupal\Component\Utility\Xss;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
 
 /**
@@ -100,6 +101,39 @@ function access_misc_views_pre_render(ViewExecutable $view) {
 }
 
 /**
+ * Implements hook_entity_view_alter().
+ */
+function access_misc_entity_view_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
+  if ($entity->getEntityTypeId() == 'eventinstance') {
+    $build['virtual_meeting_link']['#access'] = TRUE;
+    $entity_id = $entity->id();
+    $series = $entity->getEventSeries();
+    $registration_status = $series->get('event_registration')->getValue()[0]['registration'];
+
+    // Get current user id.
+    $current_user = \Drupal::currentUser();
+    $uid = $current_user->id();
+
+    if ($registration_status) {
+      // Entity Query 'registrant' to get all registrants for the event instance.
+      $query = \Drupal::entityQuery('registrant')
+        ->condition('eventinstance_id', $entity_id)
+        ->condition('status', 1)
+        ->condition('user_id', $uid)
+        ->accessCheck(TRUE);
+      $registrants = $query->execute();
+
+      $registrants = empty($registrants) ? TRUE : FALSE;
+
+
+      if ($registrants) {
+        $build['virtual_meeting_link']['#access'] = FALSE;
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_views_post_render().
  *
  * Override page title for views of people with interest/expertise tags.
@@ -180,6 +214,48 @@ function access_misc_entity_view(array &$build, EntityInterface $entity, EntityV
 function access_misc_preprocess_views_view_field(&$variables) {
   $view = $variables['view'];
   $field = $variables['field'];
+
+  // Overwrite affinity_groups into /people page on the
+  // /admin/structure/views/view/events_facet/edit/page_1 view.
+  if ($view->id() == 'events_facet' && $field->options['id'] == 'id_1') {
+    $event_instance_id = $variables['output']->__toString();
+    $event_instance = \Drupal::entityTypeManager()->getStorage('eventinstance')->load($event_instance_id);
+    $series = $event_instance->getEventSeries();
+    $link = $series->get('field_event_virtual_meeting_link')->getValue();
+
+    $variables['output'] = "";
+
+    if ($link) {
+      $registration_status = $series->get('event_registration')->getValue()[0]['registration'];
+
+      // Get current user id.
+      $current_user = \Drupal::currentUser();
+      $uid = $current_user->id();
+
+      $meeting_link = "<a href='$link' class='btn-sm btn-small btn-secondary-outline py-0 px-4 btn btn-md-teal ms-auto'> Join meeting</a>";
+
+      if ($registration_status) {
+        // Entity Query 'registrant' to get all registrants for the event instance.
+        $query = \Drupal::entityQuery('registrant')
+          ->condition('eventinstance_id', $event_instance_id)
+          ->condition('status', 1)
+          ->condition('user_id', $uid)
+          ->accessCheck(TRUE);
+        $registrants = $query->execute();
+
+        $registrants = empty($registrants) ? FALSE : TRUE;
+
+
+        if ($registrants) {
+          $link = $link[0]['uri'];
+          $variables['output'] = Markup::create($meeting_link);
+        }
+      } else {
+        // Show link when registration is not required.
+        $variables['output'] = Markup::create($meeting_link);
+      }
+    }
+  }
 
   // Overwrite affinity_groups into /people page on the
   // /admin/structure/views/view/nect_cc_people/edit/page_1 view.
@@ -331,6 +407,55 @@ function access_misc_datalayer_alter(&$data_layer) {
  * Implements hook_form_alter().
  */
 function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Get user roles.
+  $user = \Drupal::currentUser();
+  $roles = $user->getRoles();
+  if ( ($form_id == 'registrant_default_add_form' || $form_id == 'registrant_default_edit_form') && !in_array('administrator', $roles)) {
+    // Get current user.
+    $current_user = \Drupal::currentUser();
+    // Get current user field 'field_user_first_name'.
+    $user = User::load($current_user->id());
+    $first_name = $user->get('field_user_first_name')->value;
+    $last_name = $user->get('field_user_last_name')->value;
+    $email = $user->getEmail();
+    $form['field_first_name']['widget'][0]['value']['#default_value'] = $first_name;
+    $form['field_first_name']['widget'][0]['value']['#access'] = FALSE;
+    $form['field_last_name']['widget'][0]['value']['#default_value'] = $last_name;
+    $form['field_last_name']['widget'][0]['value']['#access'] = FALSE;
+    $form['email']['widget'][0]['value']['#default_value'] = $email;
+    $form['email']['widget'][0]['value']['#access'] = FALSE;
+    $form['user_id']['widget'][0]['#access'] = FALSE;
+
+    // Check if user is registered and redirect back to event if so.
+    $uri = \Drupal::request()->getRequestUri();
+    $uri = explode('/', $uri);
+    $eventinstance_id = $uri[2];
+    $entity_query = \Drupal::entityQuery('registrant')
+      ->condition('eventinstance_id', $eventinstance_id)
+      ->condition('user_id', $current_user->id())
+      ->accessCheck(FALSE);
+    $registrant_status = $entity_query->execute();
+
+    if ($registrant_status) {
+      $redirect = new RedirectResponse('/events/' . $eventinstance_id);
+      $redirect->send();
+      \Drupal::messenger()->addMessage(t('You are already registered for this event.'));
+    }
+
+  }
+  if ( ($form_id == 'registrant_default_add_form' || $form_id == 'registrant_default_edit_form') && in_array('administrator', $roles)) {
+    $form['field_first_name']['widget'][0]['value']['#access'] = TRUE;
+    $form['field_last_name']['widget'][0]['value']['#access'] = TRUE;
+    $form['email']['widget'][0]['value']['#access'] = TRUE;
+    $form['user_id']['widget'][0]['#access'] = TRUE;
+
+    if ($form_id == 'registrant_default_add_form') {
+      $form['field_first_name']['widget'][0]['value']['#default_value'] = $first_name;
+      $form['field_last_name']['widget'][0]['value']['#default_value'] = $last_name;
+      $form['email']['widget'][0]['value']['#default_value'] = $email;
+    }
+  }
+
   // Custom tags on /events/add
   if ($form_id == 'eventseries_default_add_form' || $form_id == 'eventseries_default_edit_form') {
     $form['consecutive_recurring_date'] = [];
