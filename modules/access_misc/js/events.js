@@ -42,10 +42,10 @@ registration.addEventListener('change', function() {
 function checkRegistration() {
   if (registration.checked) {
     document.getElementById("edit-field-registration-0-uri").value = '/here';
-    document.getElementById("edit-field-registration-0-uri").disabled = true;
+    document.getElementById("edit-field-registration-wrapper").style.display = 'none';
   } else {
     document.getElementById("edit-field-registration-0-uri").value = '';
-    document.getElementById("edit-field-registration-0-uri").disabled = false;
+    document.getElementById("edit-field-registration-wrapper").style.display = 'block';
   }
 }
 
