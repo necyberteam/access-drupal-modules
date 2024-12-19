@@ -481,7 +481,7 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
         'id' => 'field-tags-replace',
         'data-suggest' => '0',
       ],
-      '#weight' => 17,
+      '#weight' => 20,
     ];
 
     $form['field_tags_replace']['field_suggest'] = [
@@ -530,7 +530,7 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
         </div>
         <div id='tag-suggestions'></div>
         <details class='tags m-0 mb-8'><summary class='font-bold'>$tag_summary</summary>$output</details>",
-      '#weight' => 17,
+      '#weight' => 20,
       '#allowed_tags' => [
         'button',
         'details',
