@@ -30,16 +30,27 @@ class EventDateConvert {
    * Function to convert start and end date for events.
    */
   public function __construct($set_start, $set_end) {
-    $start_iso = strtotime($set_start);
-    $start_day = date('d', $start_iso);
-    $start = date('m/d/y - h:i A', $start_iso);
-    $end_iso = strtotime($set_end);
-    $end_day = date('d', $end_iso);
-    if ($start_day != $end_day) {
-      $end = date('m/d/ - h:i A T', $end_iso);
+    $start = 0;
+
+    if ($set_start != NULL ) {
+      $start_iso = strtotime($set_start);
+      $start_day = date('d', $start_iso);
+      $start = date('m/d/y - h:i A', $start_iso);
     }
-    else {
-      $end = date('h:i A T', $end_iso);
+
+    $end = 0;
+
+    if ($set_end != NULL ) {
+      $end_iso = strtotime($set_end);
+      $end_day = date('d', $end_iso);
+    }
+    if ($set_end != NULL && $set_start != NULL) {
+      if ($start_day != $end_day) {
+        $end = date('m/d/ - h:i A T', $end_iso);
+      }
+      else {
+        $end = date('h:i A T', $end_iso);
+      }
     }
     $this->start = $start;
     $this->end = $end;

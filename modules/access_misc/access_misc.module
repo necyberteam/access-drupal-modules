@@ -159,7 +159,10 @@ function access_misc_views_pre_view(ViewExecutable $view, $display_id, array &$a
 function access_misc_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
   switch ($entity->getEntityTypeId()) {
     case 'eventseries':
-      $date = $build['event_instances'][0]['#title'];
+      $date = array_key_exists(0, $build['event_instances']) ? $build['event_instances'][0]['#title'] : '';
+      if (empty($date)) {
+        break;
+      }
       $dates = explode(' - ', $date);
       $convert_date = new EventDateConvert($dates[0], $dates[1]);
       $build['event_instances'][0]['#title'] = $convert_date->getStart() . " - " . $convert_date->getEnd();
