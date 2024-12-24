@@ -159,7 +159,14 @@ function access_misc_views_pre_view(ViewExecutable $view, $display_id, array &$a
 function access_misc_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
   switch ($entity->getEntityTypeId()) {
     case 'eventseries':
-      $date = $build['event_instances'][0]['#title'];
+      $date = '';
+
+      if (array_key_exists('event_instances', $build)) {
+        $date = array_key_exists(0, $build['event_instances']) ? $build['event_instances'][0]['#title'] : '';
+      }
+      if (empty($date)) {
+        break;
+      }
       $dates = explode(' - ', $date);
       $convert_date = new EventDateConvert($dates[0], $dates[1]);
       $build['event_instances'][0]['#title'] = $convert_date->getStart() . " - " . $convert_date->getEnd();
@@ -443,6 +450,7 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
     $form['#attached']['library'][] = 'access_misc/node_add_tags';
     $form['#attached']['library'][] = 'access_misc/events';
 
+    $form['#validate'][] = 'access_misc_eventseries_validate';
   }
   // Custom tags on /form/ci-link webform.
   if ($form_id == 'webform_submission_resource_add_form' || $form_id == 'webform_submission_resource_edit_form') {
@@ -513,6 +521,30 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
     $form['actions']['submit']['#submit'][] = 'access_misc_user_password_change';
   }
 }
+
+/**
+ * Custom validation handler for webform_submission_resource_add_form.
+ */
+function access_misc_eventseries_validate($form, FormStateInterface $form_state) {
+  $recur_types = [
+    'custom' => 'custom_date',
+    'monthly_recurring_date' => 'monthly_recurring_date',
+    'weekly_recurring_date' => 'weekly_recurring_date',
+    'daily_recurring_date' => 'daily_recurring_date',
+    'consecutive_recurring_date' => 'included_dates',
+  ];
+
+  foreach ($recur_types as $recur_type => $date_field) {
+    if ($form_state->getValue('recur_type')[0]['value'] == $recur_type) {
+      $date = $form_state->getValue($date_field)[0]['value'];
+      if ($date == null) {
+        $form_state->setErrorByName($date_field, t('Please select a date.'));
+      }
+    }
+  }
+
+}
+
 
 /**
  * Custom submit handler for user_form.
