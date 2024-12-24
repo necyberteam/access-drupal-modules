@@ -166,6 +166,44 @@ function access_misc_entity_view(array &$build, EntityInterface $entity, EntityV
       break;
 
     case 'eventinstance':
+      $skill_levels = $build['skill_level'];
+
+      $set_skill_levels = [];
+
+      foreach ($skill_levels as $key => $skill_level) {
+        if (is_numeric($key)) {
+          $set_skill_levels[] = $skill_level['#markup'];
+          if ($key != 0) {
+            unset($build['skill_level'][$key]);
+          }
+        }
+      }
+
+      $skill_graph = '';
+
+      if (!empty($set_skill_levels)) {
+        if (in_array('Beginner', $set_skill_levels) && in_array('Intermediate', $set_skill_levels) && !in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner-medium.png" alt="Beginner and Intermediate"/>';
+        }
+        elseif (!in_array('Beginner', $set_skill_levels) && in_array('Intermediate', $set_skill_levels) && in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium-advanced.png" alt="Intermediate and Advanced"/>';
+        }
+        elseif (in_array('Beginner', $set_skill_levels) && in_array('Intermediate', $set_skill_levels) && in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-all.png" alt="Beginner, Intermediate, and Advanced"/>';
+        }
+        elseif (in_array('Beginner', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner.png" alt="Beginner"/>';
+        }
+        elseif (in_array('Intermediate', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium.png" alt="Intermediate"/>';
+        }
+        elseif (in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-advanced.png" alt="Advanced"/>';
+        }
+      }
+
+      $build['skill_level'][0]['#markup'] = $skill_graph;
+
       $date = $build['date'][0];
       $convert_date = new EventDateConvert($date['start_date']['#markup'], $date['end_date']['#markup']);
       $build['date'][0]['start_date']['#markup'] = $convert_date->getStart();
