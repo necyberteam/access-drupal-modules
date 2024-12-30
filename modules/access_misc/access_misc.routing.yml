@@ -31,10 +31,10 @@ misc.eventApprove:
   options:
     no_cache: 'TRUE'
 misc.eventDeny:
-  path: '/events/{event_id}/waitlist/deny'
+  path: '/events/{event_id}/waitlist/unapprove'
   defaults:
-    _controller: '\Drupal\access_misc\Controller\EventWaitlist::deny'
-    _title: 'Denied'
+    _controller: '\Drupal\access_misc\Controller\EventWaitlist::unapprove'
+    _title: 'Unapproved'
   requirements:
     _role: 'authenticated'
   options:

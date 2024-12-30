@@ -97,9 +97,9 @@ class EventWaitlist extends ControllerBase {
   }
 
   /**
-   * Route to deny user.
+   * Route to unapprove user.
    */
-  public function deny() {
+  public function unapprove() {
     $this->status(0);
 
     return new RedirectResponse($this->eventRegistrationUrl);
