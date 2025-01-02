@@ -256,7 +256,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
         'linkToResource' => $link_to_resource,
         'likesCount' => $flag_upvote_count,
         'likesOutput' => $likes_output_html,
-        'report' => $domainName == 'accesssupport' ? t('Flag as') : t('Flag as <i class="bi-chevron-down ml-3"></i>'),
+        'report' => $domainName == 'access-support' ? t('Flag as') : t('Flag as <i class="bi-chevron-down ml-3"></i>'),
         'authenticated' => $authenticated,
         'flagOutdated' => $flag_outdated,
         'flagNotUseful' => $flag_not_useful,
