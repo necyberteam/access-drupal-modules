@@ -136,7 +136,7 @@ class ProjectLookup {
         $lowercase = lcfirst($project_name);
         $first_letter = substr($lowercase, 0, 1);
         $project_name = "<div data-tippy-content='$project_name'>
-          <i class='text-dark fa-solid fa-circle-$first_letter h2'></i>
+          <div class='rounded-full text-white text-lg text-bold bg-md-teal p-0 w-6 h-6'><div class='text-center leading-5'>$first_letter</div></div>
         </div>";
         $project_link .= "<li class='py-2 $stripe_class'>
           <div class='text-truncate' style='width: 400px;'>

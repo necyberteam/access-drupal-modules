@@ -5,9 +5,9 @@ namespace Drupal\cssn\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\ccmnet\Plugin\Util\MentorshipLookup;
 use Drupal\cssn\Plugin\Util\EndUrl;
 use Drupal\cssn\Plugin\Util\MatchLookup;
-use Drupal\ccmnet\Plugin\Util\MentorshipLookup;
 use Drupal\cssn\Plugin\Util\ProjectLookup;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\user\Entity\User;
@@ -321,13 +321,13 @@ class CommunityPersonaController extends ControllerBase {
     if (strlen($bio) > 450) {
       $more = "<div class='mt-4 inline-block bg-light-teal'>
                   <button id='bio-more' onclick='bioMore()' style='border-width: 0 !important;' class='btn btn-link btn-sm text-dark-teal p-3'aria-hidden='TRUE' type='button'>
-                    <i class='fa-solid fa-chevron-down'></i> More
+                    <i class='bi-chevron-down'></i> More
                   </button>
                 </div>";
       $bio_summary = substr($bio, 0, 450) . "... $more";
       $less = "<div class='mt-4 inline-block bg-light-teal'>
                   <button id='bio-less' onclick='bioLess()' style='border-width: 0 !important;' class='btn btn-link btn-sm text-dark-teal p-3' aria-hidden='TRUE' type='button'>
-                    <i class='fa-solid fa-chevron-up'></i> Less
+                    <i class='bi-chevron-up'></i> Less
                   </button>
                 </div>";
       $bio .= $less;

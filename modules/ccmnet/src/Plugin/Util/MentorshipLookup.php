@@ -14,13 +14,15 @@ namespace Drupal\ccmnet\Plugin\Util;
 class MentorshipLookup {
   /**
    * Store matching nodes.
-   * $var array
+   *
+   * @var array
    */
   private $matches;
 
   /**
    * Array of sorted matches.
-   * $var array
+   *
+   * @var array
    */
   private $mentorships_sorted;
 
@@ -121,7 +123,7 @@ class MentorshipLookup {
     $on_hold = $this->arrayPickSort($matches, 'on_hold');
     $halted = $this->arrayPickSort($matches, 'halted');
     // Combine all of the arrays.
-    $mentorships_sorted  = $draft + $in_review + $accepted + $recruiting + $reviewing + $in_progress + $finishing + $completed + $on_hold + $halted;
+    $mentorships_sorted = $draft + $in_review + $accepted + $recruiting + $reviewing + $in_progress + $finishing + $completed + $on_hold + $halted;
     $this->mentorships_sorted = $mentorships_sorted;
   }
 
@@ -189,14 +191,14 @@ class MentorshipLookup {
       if (($match_status == 'Recruiting' && $match_status == 'In Progress and Recruiting' && $match_name == 'Interested') || $match_name != 'Interested') {
         $lowercase = lcfirst($match_name);
         $first_letter = substr($lowercase, 0, 1);
-        $match_name = "<div data-tippy-content='$match_name'>
-          <i class='text-dark text-dark-teal text-2xl fa-solid fa-circle-$first_letter h2'></i>
+        $match_name = "<div data-toggle='tooltip' data-placement='left' title='$match_name'>
+          <div class='rounded-full text-white text-lg text-bold bg-md-teal p-0 w-6 h-6'><div class='text-center leading-5'>$first_letter</div></div>
         </div>";
         $match_link .= "<li class='d-flex flex p-3 $stripe_class'>
           <div class='text-truncate' style='width: 400px;'>
             <a href='/node/$nid' class='font-bold underline hover--no-underline hover--text-dark-teal'>$title</a>
           </div>
-          <div class='font-weight-bold ms-5'>
+          <div>
             $match_name
           </div>
           <div class='ms-2'>
