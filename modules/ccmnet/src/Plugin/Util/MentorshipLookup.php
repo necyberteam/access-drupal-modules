@@ -151,64 +151,35 @@ class MentorshipLookup {
    */
   public function getMentorshipList() {
     $n = 1;
-    $match_link = '';
+    $mentorship_link = '';
     if ($this->mentorships_sorted == NULL) {
       return;
     }
-    foreach ($this->mentorships_sorted as $match) {
+    foreach ($this->mentorships_sorted as $mentorship) {
       $stripe_class = $n % 2 == 0 ? 'bg-light bg-light-teal' : '';
-      $title = $match['title'];
-      $nid = $match['nid'];
-      $match_status = $match['status'];
-      $mentorship_status_list = [
-        'Recruiting',
-        'Reviewing',
-        'In Progress',
-        'Finishing Up',
-        'In Progress and Recruiting',
-        'Complete',
-        'On Hold',
-        'Halted',
-      ];
-
-      $mentorship_translated_status = [];
-
-      foreach ($mentorship_status_list as $mentorship_status) {
-        $mentorship_status_tid_lookup = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $mentorship_status]);
-        $mentorship_tid = array_keys($mentorship_status_tid_lookup);
-        if (empty($mentorship_tid)) {
-          continue;
-        }
-        $mentorship_tid = $mentorship_tid[0];
-        $mentorship_translated_status[$mentorship_tid] = $mentorship_status;
-      }
-
-      if ($match_status) {
-        $set_status = is_array($match_status) ? $match_status[0]['target_id'] : $match_status;
-        $match_status = $mentorship_translated_status[$set_status];
-      }
-      $match_name = $match['name'];
-      if (($match_status == 'Recruiting' && $match_status == 'In Progress and Recruiting' && $match_name == 'Interested') || $match_name != 'Interested') {
-        $lowercase = lcfirst($match_name);
-        $first_letter = substr($lowercase, 0, 1);
-        $match_name = "<div data-toggle='tooltip' data-placement='left' title='$match_name'>
-          <div class='rounded-full text-white text-lg text-bold bg-md-teal p-0 w-6 h-6'><div class='text-center leading-5'>$first_letter</div></div>
-        </div>";
-        $match_link .= "<li class='d-flex flex p-3 $stripe_class'>
-          <div class='text-truncate' style='width: 400px;'>
-            <a href='/node/$nid' class='font-bold underline hover--no-underline hover--text-dark-teal'>$title</a>
-          </div>
-          <div>
-            $match_name
-          </div>
-          <div class='ms-2'>
-            $match_status
-          </div>
-        </li>";
-        $n++;
-      }
+      $title = $mentorship['title'];
+      $nid = $mentorship['nid'];
+      $mentorship_status = $mentorship['status'];
+      $mentorship_name = $mentorship['name'];
+      $lowercase = lcfirst($mentorship_name);
+      $first_letter = substr($lowercase, 0, 1);
+      $mentorship_name = "<div data-toggle='tooltip' data-placement='left' title='$mentorship_name'>
+        <div class='rounded-full text-white text-lg text-bold bg-md-teal p-0 w-6 h-6'><div class='text-center leading-5'>$first_letter</div></div>
+      </div>";
+      $mentorship_link .= "<li class='d-flex flex p-3 $stripe_class'>
+        <div class='text-truncate' style='width: 400px;'>
+          <a href='/node/$nid' class='font-bold underline hover--no-underline hover--text-dark-teal'>$title</a>
+        </div>
+        <div>
+          $mentorship_name
+        </div>
+        <div class='ms-2 ml-2'>
+          $mentorship_status
+        </div>
+      </li>";
+      $n++;
     }
-    return $match_link;
+    return $mentorship_link;
   }
 
   /**
