@@ -24,7 +24,7 @@ class MentorshipLookup {
    *
    * @var array
    */
-  private $mentorships_sorted;
+  private $mentorshipsSorted;
 
   /**
    * Function to return matching nodes.
@@ -101,14 +101,14 @@ class MentorshipLookup {
         ];
       }
     }
-    $this->mentorships_sorted = $match_array;
+    $this->mentorshipsSorted = $match_array;
   }
 
   /**
    * Function to sort by status - needs update if used.
    */
   public function sortStatusMatches() {
-    $matches = $this->mentorships_sorted;
+    $matches = $this->mentorshipsSorted;
     $draft = $this->arrayPickSort($matches, 'draft');
     $in_review = $this->arrayPickSort($matches, 'in_review');
     $accepted = $this->arrayPickSort($matches, 'accepted');
@@ -121,7 +121,7 @@ class MentorshipLookup {
     $halted = $this->arrayPickSort($matches, 'halted');
     // Combine all of the arrays.
     $mentorships_sorted = $draft + $in_review + $accepted + $recruiting + $reviewing + $in_progress + $finishing + $completed + $on_hold + $halted;
-    $this->mentorships_sorted = $mentorships_sorted;
+    $this->mentorshipsSorted = $mentorships_sorted;
   }
 
   /**
@@ -149,10 +149,10 @@ class MentorshipLookup {
   public function getMentorshipList() {
     $n = 1;
     $mentorship_link = '';
-    if ($this->mentorships_sorted == NULL) {
+    if ($this->mentorshipsSorted == NULL) {
       return;
     }
-    foreach ($this->mentorships_sorted as $mentorship) {
+    foreach ($this->mentorshipsSorted as $mentorship) {
       $stripe_class = $n % 2 == 0 ? 'bg-light bg-light-teal' : '';
       $title = $mentorship['title'];
       $nid = $mentorship['nid'];
