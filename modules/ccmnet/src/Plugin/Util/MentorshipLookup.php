@@ -81,16 +81,13 @@ class MentorshipLookup {
         $nid = $node->id();
         $match_name = $match['name'];
         $field_status = $node->get('field_me_state')->getValue();
-        $field_status = !empty($field_status) ? $field_status : '';
+        $field_status = $field_status[0]['target_id'];
+        $field_status = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($field_status);
+        $field_status = $field_status->getName();
 
         // Don't display engagement with a non-public status on public profile.
         if ($public == TRUE) {
           $non_public = ['Reviewing', 'On Hold', 'Halted'];
-
-          $field_status = $field_status[0]['target_id'];
-          $field_status = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($field_status);
-          $field_status = $field_status->getName();
-
           if (in_array($field_status, $non_public)) {
             unset($matches[$key]);
             break;
