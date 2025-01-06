@@ -7,10 +7,11 @@
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\block\Entity\Block;
-use Drupal\Core\Render\Markup;
 use Drupal\cssn\Plugin\Util\RoleProgramSorter;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\user\Entity\User;
 use Drupal\views\ViewExecutable;
 
@@ -47,7 +48,7 @@ function cssn_preprocess_views_view_field(&$variables) {
         if (!empty($lines[0])) {
           foreach ($lines as $key => $line) {
             $term_id = $line;
-            $term = \Drupal\taxonomy\Entity\Term::load($term_id);
+            $term = Term::load($term_id);
             if ($term->get('field_badge')->entity != NULL) {
               $name = $term->get('name')->value;
               $description = $term->get('description')->value;
@@ -68,7 +69,8 @@ function cssn_preprocess_views_view_field(&$variables) {
             }
           }
         }
-      } elseif ($line == "!!!!=-=-= This line is programmatically replaced, if you change anything in this line you'll break badges. See cssn.module to fix any issues =-=-=-=-!!!!") {
+      } elseif (
+        $line == "!!!!=-=-= This line is programmatically replaced, if you change anything in this line you'll break badges. See cssn.module to fix any issues =-=-=-=-!!!!") {
         $new_output .= $badges;
       } else {
         $new_output .= $line;
@@ -86,7 +88,7 @@ function cssn_preprocess_views_view_field(&$variables) {
  */
 function cssn_block_access(Block $block, $operation, AccountInterface $account) {
   if ($block->getPluginId() == 'block_content:58e0d082-2224-43c2-a911-c41e5afc47b9') {
-    // if the User is part of the ACCESS CSSN program, show the welcome block.
+    // If the User is part of the ACCESS CSSN program, show the welcome block.
     $current_user = \Drupal::currentUser();
     if ($current_user->isAnonymous()) {
       return AccessResult::forbidden();
