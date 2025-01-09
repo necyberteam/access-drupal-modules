@@ -2,6 +2,7 @@
 
 namespace Drupal\access_misc\Controller;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
@@ -151,6 +152,32 @@ class EventWaitlist extends ControllerBase {
     // Invalidate cache on Events Facet view.
     $cache_tags = ['config:views.view.events_facet'];
     Cache::invalidateTags($cache_tags);
+  }
+
+  /**
+   * Give access to author.
+   */
+  public function isAuthor() {
+    $account = \Drupal::currentUser();
+    // Get current uri.
+    $current_uri = \Drupal::service('path.current')->getPath();
+    $url_bits = explode('/', $current_uri);
+    $event_id = is_numeric($url_bits[2]) ? $url_bits[2] : 0;
+
+    $eventinstance = \Drupal::entityTypeManager()->getStorage('eventinstance')->load($event_id);
+    $eventseries = $eventinstance->getEventSeries();
+    // Get author of event series.
+    $author = $eventseries->getOwner();
+
+    if ($author->id() == $account->id()) {
+      return AccessResult::allowed();
+    }
+
+    if ($account->hasPermission('administer registrant types')) {
+      return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
   }
 
 }

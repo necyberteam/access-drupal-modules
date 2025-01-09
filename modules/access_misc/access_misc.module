@@ -81,6 +81,15 @@ function access_misc_user_login(UserInterface $account) {
 }
 
 /**
+ * Implements hook_entity_type_build().
+ */
+function access_misc_entity_type_build(array $entity_types) {
+  if (isset($entity_types['registrant'])) {
+    $entity_types['registrant']->setHandlerClass('access', 'Drupal\access_misc\AccessRegistrantAccessControlHandler');
+  }
+}
+
+/**
  * Implements hook_views_pre_render().
  */
 function access_misc_views_pre_render(ViewExecutable $view) {

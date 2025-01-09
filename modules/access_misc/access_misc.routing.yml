@@ -27,7 +27,7 @@ misc.eventApprove:
     _controller: '\Drupal\access_misc\Controller\EventWaitlist::approve'
     _title: 'Approved'
   requirements:
-    _role: 'authenticated'
+    _custom_access:  '\Drupal\access_misc\Controller\EventWaitlist::isAuthor'
   options:
     no_cache: 'TRUE'
 misc.eventDeny:
