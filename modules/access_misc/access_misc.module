@@ -483,6 +483,7 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
 
   // Custom tags on /events/add
   if ($form_id == 'eventseries_default_add_form' || $form_id == 'eventseries_default_edit_form') {
+    $form['event_registration']['widget'][0]['#description'] = "";
     $form['consecutive_recurring_date'] = [];
     $form['field_tags_replace'] = [
       '#type' => 'container',
@@ -491,6 +492,10 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
         'data-suggest' => '0',
       ],
       '#weight' => 20,
+    ];
+
+    $form['field_tags_replace']['field_suggest_title'] = [
+      '#markup' => "<h4 class='label form-required mt-4'>Tags</h4>",
     ];
 
     $form['field_tags_replace']['field_suggest'] = [
