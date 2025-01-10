@@ -30,11 +30,33 @@ class AccessRegistrantAccessControlHandler extends RegistrantAccessControlHandle
 
     /** @var \Drupal\recurring_events_registration\Entity\RegistrantInterface $entity */
     switch ($operation) {
+      case 'view':
+        return AccessResult::allowedIfHasPermission($account, 'view registrant entities');
+
+      case 'update':
+        if ($account->id() !== $entity->getOwnerId()) {
+          return AccessResult::allowedIfHasPermission($account, 'edit registrant entities');
+        }
+        return AccessResult::allowedIfHasPermissions($account, [
+          'edit registrant entities',
+          'edit own registrant entities',
+        ], 'OR');
+
       case 'delete':
         // Allow access
       if ($author->id() == $account->id()) {
         return AccessResult::allowed();
       }
+      if ($account->hasPermission('administer registrant entity')) {
+        return AccessResult::allowed();
+      }
+
+      case 'resend':
+        return AccessResult::allowedIfHasPermission($account, 'resend registrant emails');
+
+      case 'anon-update':
+      case 'anon-delete':
+        return $this->checkAnonymousAccess($entity, $operation, $account);
     }
 
     // Unknown operation, no opinion.
