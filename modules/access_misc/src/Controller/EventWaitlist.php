@@ -5,6 +5,7 @@ namespace Drupal\access_misc\Controller;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
@@ -36,6 +37,13 @@ class EventWaitlist extends ControllerBase {
    * @var \Drupal\Core\Database\Connection
    */
   protected $database;
+
+  /**
+   * ID's of registrants.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $registrantIds;
 
   /**
    * The event instance id from uri.
@@ -93,6 +101,7 @@ class EventWaitlist extends ControllerBase {
    */
   public function approve() {
     $this->status(1);
+    $this->register_approve_email();
 
     return new RedirectResponse($this->eventRegistrationUrl);
   }
@@ -104,6 +113,54 @@ class EventWaitlist extends ControllerBase {
     $this->status(0);
 
     return new RedirectResponse($this->eventRegistrationUrl);
+  }
+
+
+
+  /**
+ * Approved Email.
+ */
+  private function register_approve_email() {
+    $event_instance_id = $this->eventInstanceId;
+    // Entity load eventinctance by id.
+    $event_instance = \Drupal::entityTypeManager()->getStorage('eventinstance')->load($event_instance_id);
+    $series = $event_instance->getEventSeries();
+    $series_title = $series->get('title')->value;
+    $series_location = $series->get('field_location')->value;
+    $location = $series_location ? $series_location : '';
+    $start_date = $event_instance->get('date')->start_date->__toString();
+    $end_date = $event_instance->get('date')->end_date->__toString();
+    $start_date = date('F j, Y', strtotime($start_date));
+    $event_start_time = date('g:i A', strtotime($start_date));
+    $event_end_time = date('g:i A', strtotime($start_date));
+    // Turn $series_title into a link to the event.
+    $series_title_url = "<a href='/events/$event_instance_id'>$series_title</a>";
+
+    $policy = 'access_misc';
+    $policy_subtype = 'registration_approved';
+
+    // Get list of unique emails.
+    $variables = [
+      'title' => $series_title,
+      'title_link' => $series_title_url,
+      'start_date' => $start_date,
+      'event_start_time' => $event_start_time,
+      'event_end_time' => $event_end_time,
+      'name' => '',
+      'location' => $location,
+    ];
+
+
+    foreach ($this->registrantIds as $registrant_id) {
+      $registrant = $this->entityTypeManager->getStorage('registrant')->load($registrant_id);
+      $email = $registrant->get('email')->getValue();
+      $first_name = $registrant->get('field_first_name')->getValue();
+      $last_name = $registrant->get('field_last_name')->getValue();
+      $variables['name'] = $first_name[0]['value'] . ' ' . $last_name[0]['value'];
+
+      \Drupal::service('access_misc.symfony.mail')->email($policy, $policy_subtype, $email, $variables);
+    }
+
   }
 
   /**
@@ -141,9 +198,9 @@ class EventWaitlist extends ControllerBase {
     if ($reg_id) {
       $entity_query->condition('id', $reg_id);
     }
-    $registrant_ids = $entity_query->execute();
+    $this->registrantIds = $entity_query->execute();
 
-    foreach ($registrant_ids as $registrant_id) {
+    foreach ($this->registrantIds as $registrant_id) {
       $registrant = $this->entityTypeManager->getStorage('registrant')->load($registrant_id);
       $registrant->set('status', $status);
       $registrant->save();
