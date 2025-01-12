@@ -128,11 +128,12 @@ class EventWaitlist extends ControllerBase {
     $series_title = $series->get('title')->value;
     $series_location = $series->get('field_location')->value;
     $location = $series_location ? $series_location : '';
-    $start_date = $event_instance->get('date')->start_date->__toString();
+    $og_start_date = $event_instance->get('date')->start_date->__toString();
     $end_date = $event_instance->get('date')->end_date->__toString();
-    $start_date = date('F j, Y', strtotime($start_date));
-    $event_start_time = date('g:i A', strtotime($start_date));
-    $event_end_time = date('g:i A', strtotime($start_date));
+    $start_date = date('F j, Y', strtotime($og_start_date));
+    $event_start_time = date('g:iA', strtotime($og_start_date));
+    $event_end_time = date('g:iA T', strtotime($end_date));
+
     // Turn $series_title into a link to the event.
     $series_title_url = "<a href='/events/$event_instance_id'>$series_title</a>";
 
