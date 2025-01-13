@@ -13,6 +13,7 @@ use Drupal\symfony_mailer\EmailInterface;
  *   sub_types = {
  *     "register" = @Translation("User Registers for an Event"),
  *     "registration_approved" = @Translation("User Registration Approved"),
+ *     "waitlist" = @Translation("User Added to Waitlist"),
  *   },
  *   common_adjusters = {"email_subject", "email_body"},
  * )
