@@ -662,7 +662,7 @@ function access_misc_registrant_email_submit($form, FormStateInterface $form_sta
   $series = $event_instance->getEventSeries();
   $series_title = $series->get('title')->value;
   $series_contact = $series->get('field_contact')->getValue()[0]['value'];
-  $contact = $series_contact ? t('In the meantime, if you have any questions or wish to withdraw from the waitlist, please contact us at') . $series_contact  . '.': '';
+  $contact = $series_contact ? t('In the meantime, if you have any questions or wish to withdraw from the waitlist, please contact us at ') . $series_contact  . '.': '';
   $start_date = $event_instance->get('date')->start_date->__toString();
   $start_date = date('F j, Y', strtotime($start_date));
   // Turn $series_title into a link to the event.
