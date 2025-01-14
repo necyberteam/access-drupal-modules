@@ -294,6 +294,18 @@ function access_misc_preprocess_views_view_field(&$variables) {
     }
   }
 
+  // Overwrite location field into /events page on
+  // /admin/structure/views/view/events_facet/edit/page_1
+  if ($view->id() == 'events_facet' && $view->current_display == 'page_1' && $field->options['id'] == 'location') {
+    $location = html_entity_decode($variables['output']);
+    $location = strip_tags($location);
+    if (strlen($location) > 80) {
+      $location = substr($location, 0, 80) . '...';
+    }
+    $location = "<i class='bi bi-geo text-dark-teal'></i> <span class='text-dark-teal'>$location</span>";
+    $variables['output'] = Markup::create($location);
+  }
+
 }
 
 /**
