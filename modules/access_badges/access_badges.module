@@ -10,12 +10,13 @@ use Drupal\Core\Form\FormStateInterface;
  * Implements hook_form_alter().
  */
 function access_badges_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if ($form_id == 'user_form') {
+  if ($form_id == 'user_form' || $form_id == 'user_register_form') {
     // Check if user is an administator.
     $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
     $roles = $user->getRoles();
     if (!in_array('administrator', $roles)) {
       $form['#attached']['library'][] = 'access_badges/hide_ief_button';
+      $form['field_user_badges']['widget']['#field_title'] = '';
       $form['field_user_badges']['widget']['actions']['ief_add_existing']['#access'] = FALSE;
     }
   }
