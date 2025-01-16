@@ -203,6 +203,12 @@ class EventWaitlist extends ControllerBase {
 
     foreach ($this->registrantIds as $registrant_id) {
       $registrant = $this->entityTypeManager->getStorage('registrant')->load($registrant_id);
+      $waitlist = $registrant->get('waitlist')->getValue()[0];
+
+      if ($waitlist['value'] == 1) {
+        $registrant->set('waitlist', 0);
+      }
+
       $registrant->set('status', $status);
       $registrant->save();
     }
