@@ -219,7 +219,7 @@ class EventWaitlist extends ControllerBase {
   }
 
   /**
-   * Give access to author.
+   * Give access to author or administrator.
    */
   public function isAuthor() {
     $account = \Drupal::currentUser();

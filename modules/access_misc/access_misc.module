@@ -677,7 +677,7 @@ function access_misc_registrant_email_submit($form, FormStateInterface $form_sta
   // Get url.
   $url = \Drupal::request()->getRequestUri();
   $url = explode('/', $url);
-  $event_instance_id = $url[2];
+  $event_instance_id = is_numeric($url[2]) ? $url[2] : '';
   // Entity load eventinctance by id.
   $event_instance = \Drupal::entityTypeManager()->getStorage('eventinstance')->load($event_instance_id);
   $series = $event_instance->getEventSeries();
