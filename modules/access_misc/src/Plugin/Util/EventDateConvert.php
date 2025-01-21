@@ -27,6 +27,13 @@ class EventDateConvert {
   private $end;
 
   /**
+   * True if start and end date are the same day.
+   *
+   * @var boolean
+   */
+  public $sameDay = 1;
+
+  /**
    * Function to convert start and end date for events.
    */
   public function __construct($set_start, $set_end) {
@@ -46,7 +53,9 @@ class EventDateConvert {
     }
     if ($set_end != NULL && $set_start != NULL) {
       if ($start_day != $end_day) {
-        $end = date('m/d/ - h:i A T', $end_iso);
+        $this->sameDay = 0;
+
+        $end = date('m/d/y - h:i A T', $end_iso);
       }
       else {
         $end = date('h:i A T', $end_iso);
