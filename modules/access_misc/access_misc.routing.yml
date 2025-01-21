@@ -36,6 +36,6 @@ misc.eventDeny:
     _controller: '\Drupal\access_misc\Controller\EventWaitlist::unapprove'
     _title: 'Unapproved'
   requirements:
-    _role: 'authenticated'
+    _custom_access:  '\Drupal\access_misc\Controller\EventWaitlist::isAuthor'
   options:
     no_cache: 'TRUE'
