@@ -32,3 +32,26 @@ if (radioSelect) {
 let title = document.querySelector('#edit-title-0-value--description');
 title.textContent = title.textContent;
 title.innerHTML = 'The title of your event. Please do not include date or location information in the title since that is listed elsewhere in the event.';
+
+// Overwrite text in # to 'Event Title'.
+let virtualTitle = document.querySelector('#edit-field-event-virtual-meeting-link-wrapper label');
+console.log(virtualTitle.textContent);
+virtualTitle.insertAdjacentHTML('afterend', '<div class="form-item__description description form-item__description--label-help">Provide link to virtual meeting. If there is one.</div>');
+
+// If #edit-event-registration-0-registration is checked or unchecked add a console.log message.
+let registration = document.querySelector('#edit-event-registration-0-registration');
+registration.addEventListener('change', function() {
+  checkRegistration();
+});
+
+function checkRegistration() {
+  if (registration.checked) {
+    document.getElementById("edit-field-registration-0-uri").value = 'http://example.com';
+    document.getElementById("edit-field-registration-wrapper").style.display = 'none';
+  } else {
+    document.getElementById("edit-field-registration-0-uri").value = '';
+    document.getElementById("edit-field-registration-wrapper").style.display = 'block';
+  }
+}
+
+checkRegistration();

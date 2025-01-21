@@ -84,6 +84,10 @@ function access_news_form_alter(&$form, FormStateInterface $form_state, $form_id
     $form['#attached']['library'][] = 'access_misc/node_add_tags';
   }
 
+  if ($form_id == 'eventseries_default_add_form' || $form_id == 'eventseries_default_edit_form') {
+    $form['field_event_speakers']['widget']['add_more']['#value'] = t('Add another Speaker');
+  }
+
   // Both announcements and events use the custom validation function.
   if ($form_id == 'node_access_news_edit_form' || $form_id == 'node_access_news_form' || $form_id == 'eventseries_default_add_form' || $form_id == 'eventseries_default_edit_form') {
     $form['#validate'][] = 'access_news_validate';
