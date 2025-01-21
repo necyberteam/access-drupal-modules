@@ -460,6 +460,12 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
       $form['email']['widget'][0]['value']['#access'] = FALSE;
       $form['user_id']['widget'][0]['#access'] = FALSE;
 
+      $form['confirm_registeration'] = [
+        '#type' => 'markup',
+        '#weight' => 99,
+        '#markup' => "<div class='py-4'><strong>Please confirm your registration below.</strong></div>",
+      ];
+
       // Check if user is registered and redirect back to event if so.
       $uri = \Drupal::request()->getRequestUri();
       $uri = explode('/', $uri);
@@ -508,7 +514,7 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
 
   // Custom tags on /events/add
   if ($form_id == 'eventseries_default_add_form' || $form_id == 'eventseries_default_edit_form') {
-    $form['event_registration']['widget'][0]['#description'] = "";
+    $form['event_registration']['widget'][0]['#description'] = "<strong>Event registration is a new feature. If you encounter any issues or unexpected behavior, please submit a ticket to let us know.</strong>";
     $form['consecutive_recurring_date'] = [];
     $form['field_tags_replace'] = [
       '#type' => 'container',
