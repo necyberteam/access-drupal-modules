@@ -31,8 +31,9 @@ class RegistrationsListingLink extends BlockBase {
     $author = $series->getOwner();
     $current_user = \Drupal::currentUser();
 
-    // Check if the current user is the author of the event series or else an administrator.
-    if ($author->id() != $current_user->id() && !$current_user->hasPermission('administer site configuration')) {
+    // Check if the current user is the author of the event series or else an
+    // administrator — and if the event registration is enabled.
+    if (($author->id() != $current_user->id() && !$current_user->hasPermission('administer site configuration')) || $series->get('event_registration')->getValue()[0]['registration'] == 0) {
       return [
         '#markup' => "",
       ];
@@ -49,8 +50,8 @@ class RegistrationsListingLink extends BlockBase {
    * {@inheritdoc}
    */
   public function getCacheTags() {
-    if ($user = \Drupal::currentUser()) {
-      return Cache::mergeTags(parent::getCacheTags(), ['user:' . $user->id()]);
+    if ($node = \Drupal::routeMatch()->getParameter('eventinstance')) {
+      return Cache::mergeTags(parent::getCacheTags(), ['eventinstance:' . $node->id()]);
     }
     else {
       return parent::getCacheTags();
@@ -58,10 +59,10 @@ class RegistrationsListingLink extends BlockBase {
   }
 
   /**
-   * {@inheritdoc}
+   *
    */
   public function getCacheContexts() {
-    return Cache::mergeContexts(parent::getCacheContexts(), ['user']);
+    return Cache::mergeContexts(parent::getCacheContexts(), ['route']);
   }
 
 }
