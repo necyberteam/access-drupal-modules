@@ -89,6 +89,9 @@ function ccmnet_entity_insert(EntityInterface $entity) {
     }
     $grant = \Drupal::service('access_misc.nodeaccess.grant');
     $grant->grant($authorized_users, $nid);
+
+    $message = t('We will notify you by email once your mentorship has been posted on the website.');
+    \Drupal::messenger()->addMessage($message);
   }
 }
 

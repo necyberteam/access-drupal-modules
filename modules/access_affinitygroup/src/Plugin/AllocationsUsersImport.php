@@ -560,7 +560,11 @@ class AllocationsUsersImport {
           }
         }
         catch (\Exception $e) {
-          $this->collectCronLog("Exception for incoming user $userName  " . $e->getMessage(), 'err');
+          $msg = "Exception for incoming user $userName  " . $e->getMessage();
+          if ($agNodes) {
+            $msg .= "  AGs: " . implode(',', $agNodes);
+          }
+          $this->collectCronLog($msg, 'err');
         }
       } // end foreach userName
 
@@ -640,7 +644,7 @@ class AllocationsUsersImport {
     }
 
     // Send email to Site Developer.
-    // allocation_error
+    // allocation_error.
     $policy = 'affinitygroup';
     $policy_subtype = 'allocation_error';
     $role = 'site_developer';

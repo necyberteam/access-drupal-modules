@@ -137,7 +137,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
       $login = Link::fromTextAndUrl('Login to like', Url::fromUri('internal:/user/login', $options))->toString();
 
       $flag_upvote = "<div class=''>
-                        <i class='fa-light fa-right-to-bracket text-dark-teal text-[32px] w-9 me-2'></i>
+                        <i class='bi-box-arrow-in-right text-dark-teal text-[32px] w-9 me-2'></i>
                         <br> " . $login . "
                       </div>";
     }
@@ -185,11 +185,11 @@ function access_cilink_preprocess_views_view_field(&$variables) {
       '#template' => '<div class="details-wrap relative">
                         <button class="text-sm copyclip ms-4 absolute top-5 right-28 z-10" onclick="copyclip(\'{{ link_url }}\', event)">
                           <span class="default-message block leading-5 text-dark-teal">
-                            <i class="fa-solid fa-link"></i><br />
+                            <i class="bi-link"></i><br />
                             Copy link
                           </span>
                           <span class="copied-message text-dark-teal hidden d-none">
-                            <i class="fa-solid fa-check"></i><br />
+                            <i class="bi-check"></i><br />
                             Copied!
                           </span>
                         </button>
@@ -198,7 +198,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
                             <div class="text-dark-teal m-0 pe-20 font-bold text-lg">{{ title }}</div>
                             <div class="linkcount bg-white text-orange font-bold py-2 px-4 rounded-full ms-auto me-10 ml-auto border round border-radius">{{ likesCount }}</div>
                             {% if domainName == "ccmnet" %}
-                              <i class="fa-solid fa-chevron-down ml-3"></i>
+                              <i class="bi-chevron-down ml-3"></i>
                             {% endif %}
                           </summary>
                           <div class="grid grid-cols-5 gap-4 p-4">
@@ -256,7 +256,7 @@ function access_cilink_preprocess_views_view_field(&$variables) {
         'linkToResource' => $link_to_resource,
         'likesCount' => $flag_upvote_count,
         'likesOutput' => $likes_output_html,
-        'report' => $domainName == 'accesssupport' ? t('Flag as') : t('Flag as <i class="fa-solid fa-chevron-down ml-3"></i>'),
+        'report' => $domainName == 'access-support' ? t('Flag as') : t('Flag as <i class="bi-chevron-down ml-3"></i>'),
         'authenticated' => $authenticated,
         'flagOutdated' => $flag_outdated,
         'flagNotUseful' => $flag_not_useful,

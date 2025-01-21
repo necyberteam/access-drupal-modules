@@ -2,10 +2,10 @@
 
 namespace Drupal\cssn\Plugin\Block;
 
-use Drupal\access_misc\Plugin\Util\RolesLabelLookup;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\access_misc\Plugin\Util\RolesLabelLookup;
 use Drupal\cssn\Plugin\Util\EndUrl;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\user\Entity\User;
@@ -168,11 +168,11 @@ class PersonaBlock extends BlockBase {
       // $ws_results = $ws_query->execute();
       $cssn_indicator = "";
       if ($cssn_member) {
-        $cssn_indicator = "<span class='text-primary'><i class='fa-solid fa-square text-orange'></i></span>";
+        $cssn_indicator = "<span class='text-primary'><i class='bi-square-fill text-orange'></i></span>";
         $cssn = "CSSN Member";
       }
       elseif ($public) {
-        $cssn_indicator = "<span class='text-secondary'><i class='fa-solid fa-square'></i></span>";
+        $cssn_indicator = "<span class='text-secondary'><i class='bi-square-fill'></i></span>";
         $cssn = "Not a CSSN Member";
       }
       else {
@@ -195,7 +195,7 @@ class PersonaBlock extends BlockBase {
       // Get the user's email address.
       $user_id = $user->id();
       // Show the email button on public profiles.
-      $send_email = $public ? "<a href='/user/$user_id/contact?destination=community-persona/$user_id' class='w-100 btn btn-primary btn-sm py-1 px-2'><i class='fa-solid fa-envelope'></i> Send Email</a>" : "";
+      $send_email = $public ? "<a href='/user/$user_id/contact?destination=community-persona/$user_id' class='w-100 btn btn-primary btn-sm py-1 px-2'><i class='bi-envelope'></i> Send Email</a>" : "";
 
       // Get Job title.
       $user_entity = \Drupal::entityTypeManager()->getStorage('user')->load($user_id);
@@ -221,7 +221,7 @@ class PersonaBlock extends BlockBase {
                           {% if cssn != "Not a CSSN Member" %}
                             <div class="d-flex justify-content-between flex justify-between">
                               <p>{{ cssn_indicator | raw }} <strong>{{ cssn }}</strong></p>
-                              <div><i class="text-dark fa-regular fa-circle-info text-md-teal"></i> {{ cssn_more }}</div>
+                              <div><i class="text-dark bi-info-circle text-md-teal"></i> {{ cssn_more }}</div>
                             </div>
                           {% endif %}
                           {% if user_badges %}
@@ -232,7 +232,7 @@ class PersonaBlock extends BlockBase {
                               <div><b>{{ role_text }}:</b><br />{{ roles | raw }}</div>
                             {% endif %}
                             {% if cssn_role %}
-                              <div><i class="text-dark fa-solid fa-pen-to-square"></i> {{ cssn_role }}</div>
+                              <div><i class="text-dark bi-pencil-square"></i> {{ cssn_role }}</div>
                             {% endif %}
                           </div>
                           {% if program %}

@@ -223,15 +223,69 @@ function access_misc_views_pre_view(ViewExecutable $view, $display_id, array &$a
 function access_misc_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
   switch ($entity->getEntityTypeId()) {
     case 'eventseries':
-      $date = $build['event_instances'][0]['#title'];
+      $date = '';
+
+      if (array_key_exists('event_instances', $build)) {
+        $date = array_key_exists(0, $build['event_instances']) ? $build['event_instances'][0]['#title'] : '';
+      }
+      if (empty($date)) {
+        break;
+      }
       $dates = explode(' - ', $date);
       $convert_date = new EventDateConvert($dates[0], $dates[1]);
-      $build['event_instances'][0]['#title'] = $convert_date->getStart() . " - " . $convert_date->getEnd();
+      if ($convert_date->sameDay ) {
+        $build['event_instances'][0]['#title'] = $convert_date->getStart() . " - " . $convert_date->getEnd();
+      } else {
+        $build['event_instances'][0]['#title'] = $convert_date->getStart() . " to " . $convert_date->getEnd();
+      }
       break;
 
     case 'eventinstance':
+      $skill_levels = $build['skill_level'];
+
+      $set_skill_levels = [];
+
+      foreach ($skill_levels as $key => $skill_level) {
+        if (is_numeric($key)) {
+          $set_skill_levels[] = $skill_level['#markup'];
+          if ($key != 0) {
+            unset($build['skill_level'][$key]);
+          }
+        }
+      }
+
+      $skill_graph = '';
+
+      if (!empty($set_skill_levels)) {
+        if (in_array('Beginner', $set_skill_levels) && in_array('Intermediate', $set_skill_levels) && !in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner-medium.png" alt="Beginner and Intermediate"/>';
+        }
+        elseif (!in_array('Beginner', $set_skill_levels) && in_array('Intermediate', $set_skill_levels) && in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium-advanced.png" alt="Intermediate and Advanced"/>';
+        }
+        elseif (in_array('Beginner', $set_skill_levels) && in_array('Intermediate', $set_skill_levels) && in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-all.png" alt="Beginner, Intermediate, and Advanced"/>';
+        }
+        elseif (in_array('Beginner', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-beginner.png" alt="Beginner"/>';
+        }
+        elseif (in_array('Intermediate', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-medium.png" alt="Intermediate"/>';
+        }
+        elseif (in_array('Advanced', $set_skill_levels)) {
+          $skill_graph = '<img src="/themes/contrib/asp-theme/images/icons/SL-advanced.png" alt="Advanced"/>';
+        }
+      }
+
+      $build['skill_level'][0]['#markup'] = $skill_graph;
+
       $date = $build['date'][0];
       $convert_date = new EventDateConvert($date['start_date']['#markup'], $date['end_date']['#markup']);
+
+      if (!$convert_date->sameDay ) {
+        $build['date'][0]['separator']['#plain_text'] = ' to ';
+      }
+
       $build['date'][0]['start_date']['#markup'] = $convert_date->getStart();
       $build['date'][0]['end_date']['#markup'] = $convert_date->getEnd();
       break;
@@ -336,7 +390,11 @@ function access_misc_preprocess_views_view_field(&$variables) {
         $start_date = $output[0];
         $end_date = $output[1];
         $date = new EventDateConvert($start_date, $end_date);
-        $variables['output'] = Markup::create($date->getStart() . " - " . $date->getEnd());
+        if ($date->sameDay ) {
+          $variables['output'] = Markup::create($date->getStart() . " - " . $date->getEnd());
+        } else {
+          $variables['output'] = Markup::create($date->getStart() . " to " . $date->getEnd());
+        }
       }
     }
   }
@@ -351,9 +409,25 @@ function access_misc_preprocess_views_view_field(&$variables) {
         $start_date = $output[0];
         $end_date = $output[1];
         $date = new EventDateConvert($start_date, $end_date);
-        $variables['output'] = Markup::create($date->getStart() . " - " . $date->getEnd());
+        if ($date->sameDay ) {
+          $variables['output'] = Markup::create($date->getStart() . " - " . $date->getEnd());
+        } else {
+          $variables['output'] = Markup::create($date->getStart() . " to " . $date->getEnd());
+        }
       }
     }
+  }
+
+  // Overwrite location field into /events page on
+  // /admin/structure/views/view/events_facet/edit/page_1
+  if ($view->id() == 'events_facet' && $view->current_display == 'page_1' && $field->options['id'] == 'location') {
+    $location = html_entity_decode($variables['output']);
+    $location = strip_tags($location);
+    if (strlen($location) > 80) {
+      $location = substr($location, 0, 80) . '...';
+    }
+    $location = "<i class='bi bi-geo text-dark-teal'></i> <span class='text-dark-teal'>$location</span>";
+    $variables['output'] = Markup::create($location);
   }
 
 }
@@ -596,6 +670,7 @@ function access_misc_form_alter(&$form, FormStateInterface $form_state, $form_id
     $form['event_registration']['widget'][0]['unique_email_address']['#access'] = FALSE;
     $form['event_registration']['widget'][0]['permitted_roles']['#default_value'] = ['authenticated'];
     $form['event_registration']['widget'][0]['permitted_roles']['#access'] = FALSE;
+    $form['#validate'][] = 'access_misc_eventseries_validate';
   }
   // Custom tags on /form/ci-link webform.
   if ($form_id == 'webform_submission_resource_add_form' || $form_id == 'webform_submission_resource_edit_form') {
@@ -720,6 +795,30 @@ function access_misc_registrant_email_submit($form, FormStateInterface $form_sta
     \Drupal::service('access_misc.symfony.mail')->email($policy, $policy_subtype, $registered_person_email, $variables);
   }
 }
+
+/**
+ * Custom validation handler for webform_submission_resource_add_form.
+ */
+function access_misc_eventseries_validate($form, FormStateInterface $form_state) {
+  $recur_types = [
+    'custom' => 'custom_date',
+    'monthly_recurring_date' => 'monthly_recurring_date',
+    'weekly_recurring_date' => 'weekly_recurring_date',
+    'daily_recurring_date' => 'daily_recurring_date',
+    'consecutive_recurring_date' => 'included_dates',
+  ];
+
+  foreach ($recur_types as $recur_type => $date_field) {
+    if ($form_state->getValue('recur_type')[0]['value'] == $recur_type) {
+      $date = $form_state->getValue($date_field)[0]['value'];
+      if ($date == null) {
+        $form_state->setErrorByName($date_field, t('Please select a date.'));
+      }
+    }
+  }
+
+}
+
 
 /**
  * Custom submit handler for user_form.
