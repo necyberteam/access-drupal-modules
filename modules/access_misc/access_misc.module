@@ -170,83 +170,46 @@ function access_misc_views_post_render(ViewExecutable $view) {
  */
 function access_misc_views_pre_view(ViewExecutable $view, $display_id, array &$args) {
   if ($view->id() == 'recurring_events_event_instances' && $display_id === 'block_3') {
-    // Get argument 2 from the url.
-    $path = Xss::filter(\Drupal::service('path.current')->getPath());
-    $path_args = explode('/', $path);
-    if (is_numeric($path_args[3])) {
-      // Lookup term by tid.
-      $term = Term::load($path_args[3]);
-      if ($term) {
-        $title = $term->getName();
-      }
-    }
-    $options = array(
-      'id' => 'area_text_custom',
-      'table' => 'views',
-      'field' => 'area_text_custom',
-      'relationship' => 'none',
-      'group_type' => 'none',
-      'admin_label' => '',
-      'empty' => FALSE,
-      'tokenize' => FALSE,
-      'content' => '<a href="/events?f%5B0%5D=custom_event_tags%3A' . $title . '" class="btn btn-md-teal mb-6 ms-0">more</a>',
-      'plugin_id' => 'text_custom',
-    );
-    $view->setHandler('block_3', 'footer', 'area', $options);
+    $term = term_lookup_from_path();
+
+    set_footer($view, 'more', '/events?f%5B0%5D=custom_event_tags%3A' . $term['title'], 'block_3');
   }
 
   if ($view->id() == 'affinity_groups_with_tag' && $display_id === 'block_2') {
-    $path = Xss::filter(\Drupal::service('path.current')->getPath());
-    $path_args = explode('/', $path);
-    if (is_numeric($path_args[3])) {
-      $tid = $path_args[3];
-      // Lookup term by tid.
-      $term = Term::load($tid);
-      if ($term) {
-        $title = $term->getName();
-      }
-    }
+    $term = term_lookup_from_path();
 
-    $options = array(
-      'id' => 'area_text_custom',
-      'table' => 'views',
-      'field' => 'area_text_custom',
-      'relationship' => 'none',
-      'group_type' => 'none',
-      'admin_label' => '',
-      'empty' => FALSE,
-      'tokenize' => FALSE,
-      'content' => '<a href="/tags/' . $tid . '/affinity-groups" class="btn btn-md-teal mb-6 ms-0">All Affinity Group with this tag</a>',
-      'plugin_id' => 'text_custom',
-    );
-    $view->setHandler('block_2', 'footer', 'area', $options);
+    set_footer($view, 'All Affinity Groups with this tag', '/tags/' . $term['tid'] . '/affinity-groups', 'block_2');
+  }
+
+  if ($view->id() == 'people_with_expertise_tags' && $display_id === 'block_1') {
+    $term = term_lookup_from_path();
+
+    set_footer($view, 'more people', '/tags/' . $term['tid'] . '/people-with-expertise', 'block_1');
+
+  }
+
+  if ($view->id() == 'people_with_interest_tags' && $display_id === 'block_1') {
+    $term = term_lookup_from_path();
+
+    set_footer($view, 'more people', '/tags/' . $term['tid'] . '/people-with-interest', 'block_1');
+  }
+
+  if ($view->id() == 'match_engagement_view' && $display_id === 'block_6') {
+    $term = term_lookup_from_path();
+
+    set_footer($view, 'All Engagements with this tag', '/tag/' . $term['tid'] . '/engagements', 'block_6');
+  }
+
+  if ($view->id() == 'resources' && $display_id === 'block_1') {
+    $term = term_lookup_from_path();
+
+    set_footer($view, 'All Resources with this tag', '/tags/' . $term['tid'] . '/resources', 'block_1');
   }
 
   if ($view->id() == 'tagged_news_block' && $display_id === 'block_1') {
-    $path = Xss::filter(\Drupal::service('path.current')->getPath());
-    $path_args = explode('/', $path);
-    if (is_numeric($path_args[3])) {
-      $tid = $path_args[3];
-      // Lookup term by tid.
-      $term = Term::load($tid);
-      if ($term) {
-        $title = $term->getName();
-      }
-    }
+    $term = term_lookup_from_path();
 
-    $options = array(
-      'id' => 'area_text_custom',
-      'table' => 'views',
-      'field' => 'area_text_custom',
-      'relationship' => 'none',
-      'group_type' => 'none',
-      'admin_label' => '',
-      'empty' => FALSE,
-      'tokenize' => FALSE,
-      'content' => '<a href="/announcements?tid=' . $tid . '" class="btn btn-md-teal mb-6 ms-0">more</a>',
-      'plugin_id' => 'text_custom',
-    );
-    $view->setHandler('block_1', 'footer', 'area', $options);
+    set_footer($view, 'more', '/announcements?tid=' . $term['tid'], 'block_1');
   }
 
   // Override registration csv /admin/structure/views/view/recurring_events_registrations/edit/data_export_1.
@@ -269,6 +232,45 @@ function access_misc_views_pre_view(ViewExecutable $view, $display_id, array &$a
     $view->display_handler->setOption('filters', $view_filters);
   }
 
+}
+
+/**
+ * Lookup term from path for footer replacements above.
+ */
+function set_footer($view, $url_title, $url, $id) {
+  $options = array(
+    'id' => 'area_text_custom',
+    'table' => 'views',
+    'field' => 'area_text_custom',
+    'relationship' => 'none',
+    'group_type' => 'none',
+    'admin_label' => '',
+    'empty' => FALSE,
+    'tokenize' => FALSE,
+    'content' => '<a href="' . $url . '" class="btn btn-md-teal mb-6 ms-0">' . $url_title . '</a>',
+    'plugin_id' => 'text_custom',
+  );
+  $view->setHandler($id, 'footer', 'area', $options);
+}
+
+/**
+ * Lookup term from path for footer replacements above.
+ */
+function term_lookup_from_path() {
+  $path = Xss::filter(\Drupal::service('path.current')->getPath());
+  $path_args = explode('/', $path);
+  if (is_numeric($path_args[3])) {
+    $tid = $path_args[3];
+    // Lookup term by tid.
+    $term = Term::load($tid);
+    if ($term) {
+      $title = $term->getName();
+    }
+  }
+  return [
+    'tid' => $tid,
+    'title' => $title,
+  ];
 }
 
 /**
