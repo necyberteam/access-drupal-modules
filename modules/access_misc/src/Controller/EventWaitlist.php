@@ -103,6 +103,9 @@ class EventWaitlist extends ControllerBase {
     $this->status(1);
     $this->register_approve_email();
 
+    // Clear cache eventinstance to reset block.
+    Cache::invalidateTags(['eventinstance:' . $this->eventInstanceId]);
+
     return new RedirectResponse($this->eventRegistrationUrl);
   }
 
@@ -111,6 +114,9 @@ class EventWaitlist extends ControllerBase {
    */
   public function unapprove() {
     $this->status(0);
+
+    // Clear cache eventinstance to reset block.
+    Cache::invalidateTags(['eventinstance:' . $this->eventInstanceId]);
 
     return new RedirectResponse($this->eventRegistrationUrl);
   }
