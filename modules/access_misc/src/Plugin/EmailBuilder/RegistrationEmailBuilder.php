@@ -14,6 +14,7 @@ use Drupal\symfony_mailer\EmailInterface;
  *     "register" = @Translation("User Registers for an Event"),
  *     "registration_approved" = @Translation("User Registration Approved"),
  *     "waitlist" = @Translation("User Added to Waitlist"),
+ *     "registrant_digest" = @Translation("Email to event author with registrant digest"),
  *   },
  *   common_adjusters = {"email_subject", "email_body"},
  * )
