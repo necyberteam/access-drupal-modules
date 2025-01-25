@@ -73,11 +73,13 @@ class EventInstanceSidebar extends BlockBase {
     }
     else{
       $registration = $series->get('field_registration')->getValue();
-      $reg_link = Link::fromTextAndUrl($reg_title, Url::fromUri($registration[0]['uri']));
-      $reg_link = $reg_link->toRenderable();
-      $reg_link['#options']['attributes']['class'][] = 'btn';
-      $reg_link['#options']['attributes']['class'][] = 'btn-primary';
-      $reg_link['#options']['attributes']['class'][] = 'text-xl';
+      if ($registration) {
+        $reg_link = Link::fromTextAndUrl($reg_title, Url::fromUri($registration[0]['uri']));
+        $reg_link = $reg_link->toRenderable();
+        $reg_link['#options']['attributes']['class'][] = 'btn';
+        $reg_link['#options']['attributes']['class'][] = 'btn-primary';
+        $reg_link['#options']['attributes']['class'][] = 'text-xl';
+      }
     }
 
     $skill_list = [];
