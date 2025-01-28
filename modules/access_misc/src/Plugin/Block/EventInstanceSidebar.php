@@ -133,14 +133,13 @@ class EventInstanceSidebar extends BlockBase {
             {% endif %}
           </div>
 
-          <div class="field__items">
-            <strong>Waitlist: </strong>
-            {% if my_registration_status.waitlist %}
-              <span>Yes</span>
-            {% else %}
-              <span>No</span>
-            {% endif %}
-          </div>
+          {% if my_registration_status.waitlist %}
+            <div class="field__items">
+              <strong>Waitlist: </strong>
+                <span>Yes</span>
+            </div>
+          {% endif %}
+
         {% endif %}
 
         {% if speakers %}
