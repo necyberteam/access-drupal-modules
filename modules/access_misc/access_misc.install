@@ -1657,3 +1657,41 @@ function access_misc_update_10023() {
   \Drupal::state()->set('access_misc_email_digest', []);
 }
 
+/**
+ * Set new eventseries field.
+ */
+function access_misc_update_10024() {
+  $query = \Drupal::entityQuery('eventseries');
+  $query->accessCheck(FALSE);
+  $entity_ids = $query->execute();
+
+
+  foreach ($entity_ids as $entity_id) {
+    $eventinstance = \Drupal::entityTypeManager()->getStorage('eventseries')->load($entity_id);
+    $eventinstance_revision = $eventinstance->getRevisionId();
+
+    $connection = \Drupal::database();
+    $connection->insert('eventseries__field_event_no_listing')
+      ->fields([
+        'bundle' => 'default',
+        'deleted' => 0,
+        'entity_id' => $entity_id,
+        'revision_id' => $eventinstance_revision,
+        'langcode' => 'en',
+        'delta' => 0,
+        'field_event_no_listing_value' => 0,
+      ])
+      ->execute();
+    $connection->insert('eventseries_revision__field_event_no_listing')
+      ->fields([
+        'bundle' => 'default',
+        'deleted' => 0,
+        'entity_id' => $entity_id,
+        'revision_id' => $eventinstance_revision,
+        'langcode' => 'en',
+        'delta' => 0,
+        'field_event_no_listing_value' => 0,
+      ])
+      ->execute();
+  }
+}
