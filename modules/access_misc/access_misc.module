@@ -885,18 +885,18 @@ function access_misc_cron() {
   if ($hour == 3 && $min < 20) {
     // Run the ingest of ACCESS organizations.
     \Drupal::service('access_misc.import_access_orgs')->ingest();
+
+    // Run registration email digest for authors of event.
+    $digest = \Drupal::state()->get('access_misc_email_digest');
+
+    foreach ($digest as $event_id => $digest_event) {
+      $event_author = $digest_event['author_email'];
+      $policy = 'access_misc';
+      $policy_subtype = 'registrant_digest';
+      \Drupal::service('access_misc.symfony.mail')->email($policy, $policy_subtype, $event_author, $digest_event);
+    }
+
+    // Reset digest.
+    \Drupal::state()->set('access_misc_email_digest', []);
   }
-
-  $digest = \Drupal::state()->get('access_misc_email_digest');
-
-  foreach ($digest as $event_id => $digest_event) {
-    $event_author = $digest_event['author_email'];
-    $policy = 'access_misc';
-    $policy_subtype = 'registrant_digest';
-    \Drupal::service('access_misc.symfony.mail')->email($policy, $policy_subtype, $event_author, $digest_event);
-  }
-
-  // Reset digest.
-  \Drupal::state()->set('access_misc_email_digest', []);
-
 }
