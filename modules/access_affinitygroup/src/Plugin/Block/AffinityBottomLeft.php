@@ -145,6 +145,12 @@ class AffinityBottomLeft extends BlockBase {
     $announcement_list = $announcement_view->render();
     $output .= '<div class="bg-md-teal p-4 mb-10">';
     $output .= \Drupal::service('renderer')->render($announcement_list);
+    if ($announcement_list['#rows']) {
+      $announcment_count = count($announcement_list['#rows'][0]['#rows']);
+      if ($announcment_count > 4) {
+        $output .= '<a class="text-sm uppercase text-white-er hover--text-light-teal no-underline hover--underline" href="/announcements?field_affinity_group_target_id=' . $affinity_group_tax . '">See More</a>';
+      }
+    }
     $output .= '</div>';
 
     return [
