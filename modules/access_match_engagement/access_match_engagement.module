@@ -253,6 +253,9 @@ function access_match_engagement_form_alter(&$form, FormStateInterface $form_sta
       // Show author, status, and last saved date to SC.
       $form['meta']['#access'] = TRUE;
       unset($form['meta']['#group']);
+
+      // match_sc roles seem confused by this — so hiding.
+      $form['field_node_type']['#access'] = FALSE;
     }
 
     if ($form_id == 'node_match_engagement_edit_form') {
@@ -391,10 +394,6 @@ function access_match_engagement_form_validate(&$form, FormStateInterface $form_
   $values = $form_state->getValues();
   if (!empty($values)) {
 
-    $tag_count = count($values['field_tags']);
-    if ($tag_count < 1) {
-      $error .= t('Please add at least one tag.');
-    }
     $person_array = $values['field_students'];
     $error .= match_check_role($person_array, 'student', FALSE);
 
