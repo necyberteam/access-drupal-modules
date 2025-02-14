@@ -115,7 +115,7 @@ function access_match_engagement_form_alter(&$form, FormStateInterface $form_sta
     $tag_summary = t('Select Tags');
 
     $form['node_add_tags'] = [
-      '#markup' => "<div class='font-bold form-required'>$tag_label</div>
+      '#markup' => "<div class='font-bold'>$tag_label</div>
         <div class='tag-description'>$tag_description</div>
         <div id='tag-suggestions'></div>
         <details class='tags m-0 mb-8'><summary class='font-bold'>$tag_summary</summary>$output</details>",
